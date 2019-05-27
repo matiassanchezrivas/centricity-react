@@ -1,0 +1,6 @@
+export default {
+    CH_SYSTEM_ADMIN: 'CH_SYSTEM_ADMIN',
+    CH_USER: 'CH_USER',
+    CH_USER_ADMIN: 'CH_USER_ADMIN',
+    CH_USER_LIMITED: 'CH_USER_LIMITED',
+}
