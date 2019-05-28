@@ -1,3 +1,4 @@
 export default {
-    CENTRICITY_ENDPOINT: 'http://centricityweb-sandbox.s3-website-us-east-1.amazonaws.com'
+    CENTRICITY_FRONT: 'http://centricityweb-sandbox.s3-website-us-east-1.amazonaws.com',
+    CENTRICITY_BACK: 'http://dev.sandbox-us.centricity.io:8080/api'
 }

@@ -21,7 +21,7 @@ class Sidebar extends Component {
           console.log(item, _.intersection(item.roles, roles))
           return item.roles.length == 0 || _.intersection(item.roles, roles).length > 0 ?
             <li>
-              <a href={item.ref && config.CENTRICITY_ENDPOINT + '/#/' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
+              <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
             </li>
             : null
         }

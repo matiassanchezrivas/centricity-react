@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import queryString from 'query-string';
-
+import { fetchUser } from '../actions-creator/user'
+import { connect } from 'react-redux';
 class Layout extends Component {
     constructor(props) {
         super(props)
@@ -11,7 +12,9 @@ class Layout extends Component {
     }
 
     componentDidMount() {
-        console.log(queryString.parse(this.props.location.search))
+        const query = queryString.parse(this.props.location.search)
+        console.log(query)
+        this.props.fetchUser(query.id)
     }
 
     render() {
@@ -27,4 +30,17 @@ class Layout extends Component {
     }
 }
 
-export default Layout
+const mapDispatchToProps = function (dispatch) {
+    return (
+        {
+            fetchUser: (token) => dispatch(fetchUser(token))
+        }
+    )
+}
+
+const mapStateToProps = function (state) {
+    return {
+    };
+}
+
+export default connect(null, mapDispatchToProps)(Layout);
