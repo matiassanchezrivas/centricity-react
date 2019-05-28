@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
+import Clientsbar from './Clientsbar'
 
 class Layout extends Component {
     constructor(props) {
@@ -71,23 +72,27 @@ class Layout extends Component {
     render() {
         const { menuOpen } = this.state;
         return (
-            <div className="ch-container ng-scope container">
-                <div
-                    id="ch-pusher"
-                    className={`ch-pusher ${menuOpen ? 'ch-pushed' : ''} `}
-                    style={menuOpen ? Styles.translateOpen : Styles.translateClosed}
-                >
-                    {/* ch menu */}
-                    <Sidebar />
-                    <div className="ch-scroller">
-                        <div className="scroller-inner">
-                            <Header
-                                toggleMenu={this.toggleMenu}
-                            />
-                            <div className="state-content">
-                                <div className="cp-content workspaces ng-scope"></div>
-                                <div class="cp-content__header">
-                                    {this.props.children}
+            <div className='aside-open aside-with-am-fade-and-slide-right'>
+                {/* <Clientsbar /> */}
+                <div className="ch-container ng-scope container">
+                    <div
+                        id="ch-pusher"
+                        className={`ch-pusher ${menuOpen ? 'ch-pushed' : ''} `}
+                        style={menuOpen ? Styles.translateOpen : Styles.translateClosed}
+                    >
+                        {/* ch menu */}
+                        <Sidebar />
+                        <div className="ch-scroller">
+                            <div className="scroller-inner">
+                                <Header
+                                    toggleMenu={this.toggleMenu}
+                                    menuOpen={menuOpen}
+                                />
+                                <div className="state-content">
+                                    <div className="cp-content workspaces ng-scope"></div>
+                                    <div class="cp-content__header">
+                                        {this.props.children}
+                                    </div>
                                 </div>
                             </div>
                         </div>

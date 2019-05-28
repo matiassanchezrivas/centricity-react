@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
-import css from './styles/main.scss'
+import main_css from './styles/main.scss'
 
 class App extends Component {
   render() {

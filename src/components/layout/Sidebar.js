@@ -1,14 +1,11 @@
 import React, { Component } from 'react'
-import { I18n } from '@aws-amplify/core';
 import dict from '../../i18n/i18n.json'
 import _ from 'lodash'
 import roles from '../../constants/roles'
 import config_menu from '../../config/menu'
 import config from '../../config/config'
-
-I18n.putVocabularies(dict);
+import I18n from '../../config/i18n'
 I18n.setLanguage('en');
-
 
 const menu = [
   { name: "MENU_ADMIN_DASHBOARD", class: '', ref: "app.admin-dashboard", roles: [roles.CH_SYSTEM_ADMIN] },
@@ -70,7 +67,7 @@ class Sidebar extends Component {
           console.log(item, _.intersection(item.roles, roles))
           return item.roles.length == 0 || _.intersection(item.roles, roles).length > 0 ?
             <li>
-              <a href={item.ref && config.CENTRICITY_ENDPOINT + '/#/' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
+              <a href={item.ref && config.CENTRICITY_ENDPOINT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
             </li>
             : null
         }
