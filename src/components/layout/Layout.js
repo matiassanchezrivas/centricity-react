@@ -7,7 +7,7 @@ class Layout extends Component {
         super(props)
 
         this.state = {
-            menuOpen: true,
+            menuOpen: false,
             sublevel: 0,
             level: 0,
         }
@@ -24,6 +24,7 @@ class Layout extends Component {
         console.log(menuOpen, !menuOpen)
         this.setState({
             menuOpen: !menuOpen,
+
         });
 
 
