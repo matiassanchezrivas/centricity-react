@@ -1,12 +1,7 @@
 import React, { Component } from 'react'
 import logoHeader from '../../images/logo-header.png'
 import logoHeaderSmall from '../../images/logo-header-small.png'
-
-const user = {
-  name: 'matias',
-  lastName: 'sanchez'
-}
-
+import { connect } from 'react-redux';
 
 class Header extends Component {
   constructor(props) {
@@ -16,7 +11,7 @@ class Header extends Component {
   }
 
   render() {
-    const { toggleMenu, menuOpen } = this.props
+    const { toggleMenu, menuOpen, currentUser } = this.props
     const loading = true;
     const loadingBlock = false;
     return (
@@ -35,10 +30,10 @@ class Header extends Component {
           <div class="welcomebar">
             <img class="gravatar" gravatar-src="user.email" gravatar-size="42" />
             <span class="usermenu--welcome">
-              {'WELCOME'} <span class="usermenu__name">{`${user.name} ${user.lastName}`}</span>
+              {'WELCOME'} <span class="usermenu__name">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
             <span class="usermenu" data-animation="am-flip-x" bs-dropdown="dropdown" data-placement="bottom-right">
-              {'WELCOME'} <span class="usermenu__name" data-icon-after="&#xe5ca">{`${user.name} ${user.lastName}`}</span>
+              {'WELCOME'} <span class="usermenu__name" data-icon-after="&#xe5ca">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
           </div>
           <button type="button" role="button" aria-label="Log out" class="userbar__logout" ng-if="isAuthorized([roles.CH_USER_ADMIN,roles.CH_USER_LIMITED, roles.CH_USER])" ng-click="$emit('logout')"></button>
@@ -59,7 +54,19 @@ class Header extends Component {
   }
 }
 
-export default Header
+const mapDispatchToProps = function (dispatch) {
+  return (
+    {}
+  )
+}
+
+const mapStateToProps = function (state) {
+  return {
+    currentUser: state.users.currentUser
+  };
+}
+
+export default connect(mapStateToProps, null)(Header);
 
 
 
