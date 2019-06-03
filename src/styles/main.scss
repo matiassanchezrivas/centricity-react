@@ -5408,7 +5408,7 @@ tags-input input {
 /* line 1, ../../app/styles/gui/_ui-workspaces.scss */
 .cp-content {
   display: -ms-flexbox;
-  display: flex;
+  // display: flex; [CHANGED ERASED]
   background: #fdfbfb;
   min-height: calc(100vh - 69px);
   -ms-flex-line-pack: stretch;
@@ -9088,11 +9088,16 @@ input:checked + .slider:before {
 }
 
 
-
+// [CONTAINER INPUT]
 .container input {
     position: absolute;
     opacity: 0;
     cursor: pointer;
+}
+
+.tabla-material input {
+  position: relative;
+  opacity: 1;
 }
 
 /* Create a custom checkbox */
