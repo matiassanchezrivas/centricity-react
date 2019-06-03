@@ -64,11 +64,13 @@ class Sidebar extends Component {
       <ul>
         {menu.map(item => {
           const only = config_menu[item.ref] && config_menu[item.ref].data && config_menu[item.ref].data.permissions && config_menu[item.ref].data.permissions.only;
-          console.log('ONLY', only)
-          console.log(item.name, 'item:', only, 'user:', roles, _.intersection(only, roles))
           return item.roles.length == 0 || !only || _.intersection(item.roles, only).length > 0 ?
             <li>
-              <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
+              {
+                item.submenu ?
+                  <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after='&#xe5cd;' class="ch-menu__link">{I18n.get(item.name)}</a> :
+                  <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
+              }
             </li>
             : null
         }
