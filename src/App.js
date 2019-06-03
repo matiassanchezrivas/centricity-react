@@ -7,6 +7,7 @@ import {
 import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import main_css from './styles/main.scss'
+import CloudfrontTemplates from './pages/CloudfrontTemplates';
 
 class App extends Component {
   render() {
@@ -15,6 +16,7 @@ class App extends Component {
         <Layout>
           <Switch>
             <Route exact path="/" component={Home} />
+            <Route exact path="/cloudfrontTemplates" component={CloudfrontTemplates} />
           </Switch>
         </Layout>
       </Router>
