@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import logoHeader from '../../images/logo-header.png'
 import logoHeaderSmall from '../../images/logo-header-small.png'
 import { connect } from 'react-redux';
+import I18n from '../../config/i18n'
+I18n.setLanguage('en');
 
 class Header extends Component {
   constructor(props) {
@@ -11,7 +13,7 @@ class Header extends Component {
   }
 
   render() {
-    const { toggleMenu, menuOpen, currentUser } = this.props
+    const { toggleMenu, menuOpen, currentUser, currentClient } = this.props
     const loading = true;
     const loadingBlock = false;
     return (
@@ -30,17 +32,16 @@ class Header extends Component {
           <div class="welcomebar">
             <img class="gravatar" gravatar-src="user.email" gravatar-size="42" />
             <span class="usermenu--welcome">
-              {'WELCOME'} <span class="usermenu__name">{`${currentUser.name} ${currentUser.lastName}`}</span>
+              {I18n.get('WELCOME')} <span class="usermenu__name">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
             <span class="usermenu" data-animation="am-flip-x" bs-dropdown="dropdown" data-placement="bottom-right">
-              {'WELCOME'} <span class="usermenu__name" data-icon-after="&#xe5ca">{`${currentUser.name} ${currentUser.lastName}`}</span>
+              {I18n.get('WELCOME')} <span class="usermenu__name" data-icon-after="&#xe5ca">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
           </div>
           <button type="button" role="button" aria-label="Log out" class="userbar__logout" ng-if="isAuthorized([roles.CH_USER_ADMIN,roles.CH_USER_LIMITED, roles.CH_USER])" ng-click="$emit('logout')"></button>
           <div class="clientsbar" ng-if="isAuthorized([roles.CH_SYSTEM_ADMIN])">
             <div class="adminmenu" data-icon-after="&#xe4ba" ng-click="openClientsPanel()">
-              <span ng-if="customer != null">{'customer.name'}</span>
-              <span ng-if="customer == null" >ADMIN_MENU_CLIENTS_SELECTION</span>
+              <span>{currentClient ? currentClient.name : I18n.get('ADMIN_MENU_CLIENTS_SELECTION')}</span>
             </div>
           </div>
         </div>
@@ -62,7 +63,8 @@ const mapDispatchToProps = function (dispatch) {
 
 const mapStateToProps = function (state) {
   return {
-    currentUser: state.users.currentUser
+    currentUser: state.users.currentUser,
+    currentClient: null
   };
 }
 

@@ -4,6 +4,7 @@ import _ from 'lodash'
 import roles from '../../constants/roles'
 import config_menu from '../../config/menu'
 import config from '../../config/config'
+import { connect } from 'react-redux';
 import I18n from '../../config/i18n'
 I18n.setLanguage('en');
 
@@ -51,8 +52,6 @@ const menu = [
   { name: "LOGS_REPORTS", class: '', ref: "app.logs-report", roles: [roles.CH_SYSTEM_ADMIN, roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] },
   { name: "MENU_SETTINGS", class: '', ref: "app.customer-settings", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] }]
 
-const hardcodedRoles = ['CH_SYSTEM_ADMIN']
-
 class Sidebar extends Component {
   constructor(props) {
     super(props)
@@ -64,8 +63,10 @@ class Sidebar extends Component {
     return (
       <ul>
         {menu.map(item => {
-          console.log(item, _.intersection(item.roles, roles))
-          return item.roles.length == 0 || _.intersection(item.roles, roles).length > 0 ?
+          const only = config_menu[item.ref] && config_menu[item.ref].data && config_menu[item.ref].data.permissions && config_menu[item.ref].data.permissions.only;
+          console.log('ONLY', only)
+          console.log(item.name, 'item:', only, 'user:', roles, _.intersection(only, roles))
+          return item.roles.length == 0 || !only || _.intersection(item.roles, only).length > 0 ?
             <li>
               <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
             </li>
@@ -73,21 +74,34 @@ class Sidebar extends Component {
         }
         )}
       </ul>
-
     )
   }
 
   render() {
+    const { currentUser } = this.props;
     return (
       <nav id="ch-menu" class="ch-menu" menu>
         <div class="ch-level">
           <h2>{I18n.get("MENU_HEADLINE")}</h2>
           <ul>
-            {this.renderMenu(menu, ['admin'])}
+            {this.renderMenu(menu, currentUser.roles)}
           </ul>
         </div>
       </nav>
     )
   }
 }
-export default Sidebar
+const mapDispatchToProps = function (dispatch) {
+  return (
+    {}
+  )
+}
+
+const mapStateToProps = function (state) {
+  return {
+    currentUser: state.users.currentUser,
+    currentClient: null
+  };
+}
+
+export default connect(mapStateToProps, null)(Sidebar);

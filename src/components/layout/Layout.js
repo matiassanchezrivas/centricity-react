@@ -89,8 +89,7 @@ class Layout extends Component {
                                     menuOpen={menuOpen}
                                 />
                                 <div className="state-content">
-                                    <div className="cp-content workspaces ng-scope"></div>
-                                    <div class="cp-content__header">
+                                    <div className="cp-content ng-scope">
                                         {this.props.children}
                                     </div>
                                 </div>
