@@ -2,19 +2,19 @@ import React, { Component } from 'react'
 import queryString from 'query-string';
 import { fetchUser } from '../actions-creator/user'
 import { connect } from 'react-redux';
+
 class Layout extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
-            links: []
+            links: [],
+            loading: true
         }
     }
 
     componentDidMount() {
-        const query = queryString.parse(this.props.location.search)
-        console.log(query)
-        this.props.fetchUser(query.id)
+
     }
 
     render() {

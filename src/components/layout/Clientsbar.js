@@ -18,7 +18,6 @@ class Sidebar extends Component {
     return (
       <ul>
         {menu.map(item => {
-          console.log(item.name, 'item:', item.roles, 'user:', roles, _.intersection(item.roles, roles))
           return item.roles.length == 0 || _.intersection(item.roles, roles).length > 0 ?
             <li>
               <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>

@@ -13,9 +13,7 @@ class Header extends Component {
   }
 
   render() {
-    const { toggleMenu, menuOpen, currentUser, currentClient } = this.props
-    const loading = true;
-    const loadingBlock = false;
+    const { toggleMenu, menuOpen, currentUser, currentClient, loading, loadingBlock } = this.props
     return (
       <div class="topbar">
         {/* Button toggle menu */}
@@ -26,7 +24,7 @@ class Header extends Component {
         <img class="logo" src={logoHeader} ng-click="go('app.dashboard')" />
         <img class="logo-small" src={logoHeaderSmall} ng-click="go('app.dashboard')" />
         {/* Loading */}
-        <div class="loading" ng-class="{'active animated fadeIn': loading && !loadingBlock }"></div>
+        {loading && !loadingBlock && <div class="loading" className='active animated fadeIn'></div>}
         {/* User bar */}
         <div className={`userbar animated ${(loading && !loadingBlock) && 'fadeOut'} ${!loading && 'fadeIn'}`}>
           <div class="welcomebar">
@@ -35,12 +33,12 @@ class Header extends Component {
               {I18n.get('WELCOME')} <span class="usermenu__name">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
             <span class="usermenu" data-animation="am-flip-x" bs-dropdown="dropdown" data-placement="bottom-right">
-              {I18n.get('WELCOME')} <span class="usermenu__name" data-icon-after="&#xe5ca">{`${currentUser.name} ${currentUser.lastName}`}</span>
+              {I18n.get('WELCOME')} <span class="usermenu__name" data-icon-after="&#xe5ca;">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
           </div>
           <button type="button" role="button" aria-label="Log out" class="userbar__logout" ng-if="isAuthorized([roles.CH_USER_ADMIN,roles.CH_USER_LIMITED, roles.CH_USER])" ng-click="$emit('logout')"></button>
           <div class="clientsbar" ng-if="isAuthorized([roles.CH_SYSTEM_ADMIN])">
-            <div class="adminmenu" data-icon-after="&#xe4ba" ng-click="openClientsPanel()">
+            <div class="adminmenu" data-icon-after="&#xe4ba;" ng-click="openClientsPanel()">
               <span>{currentClient ? currentClient.name : I18n.get('ADMIN_MENU_CLIENTS_SELECTION')}</span>
             </div>
           </div>

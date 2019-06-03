@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import Header from './Header'
 import Sidebar from './Sidebar'
 import Clientsbar from './Clientsbar'
+import { fetchUser } from '../../actions-creator/user'
+import { connect } from 'react-redux';
 
 class Layout extends Component {
     constructor(props) {
@@ -11,18 +13,33 @@ class Layout extends Component {
             menuOpen: false,
             sublevel: 0,
             level: 0,
+            loading: true,
         }
 
         this.toggleMenu = this.toggleMenu.bind(this);
     }
 
-    componentDidMount() {
+    async componentDidMount() {
+        let session = localStorage.getItem('cloudpoxee.session')
+        console.log('session', session);
+        if (!session) {
+            window.location.replace('/#/login')
+        } else {
+            //ir a /user/me
+            const parsedSession = JSON.parse(session);
+            console.log('parsedSession', parsedSession);
+
+            const u = await this.props.fetchUser(parsedSession.sessionId)
+                .catch(e => {
+                    window.location.replace('/#/login')
+                })
+                .then(e => this.setState({ loading: false }))
+        }
     }
 
     toggleMenu() {
 
         const { level, menuOpen } = this.state;
-        console.log(menuOpen, !menuOpen)
         this.setState({
             menuOpen: !menuOpen,
 
@@ -70,9 +87,9 @@ class Layout extends Component {
     }
 
     render() {
-        const { menuOpen } = this.state;
+        const { menuOpen, loading } = this.state;
         return (
-            <div className='aside-open aside-with-am-fade-and-slide-right'>
+            !loading && <div className='aside-open aside-with-am-fade-and-slide-right'>
                 {/* <Clientsbar /> */}
                 <div className="ch-container ng-scope container">
                     <div
@@ -106,4 +123,17 @@ const Styles = {
     translateOpen: { transform: 'translate(300px, 0px)' },
     translateClose: { transform: 'translate(0px, 0px)' }
 }
-export default Layout
+const mapDispatchToProps = function (dispatch) {
+    return (
+        {
+            fetchUser: (token) => dispatch(fetchUser(token))
+        }
+    )
+}
+
+const mapStateToProps = function (state) {
+    return {
+    };
+}
+
+export default connect(null, mapDispatchToProps)(Layout);
