@@ -1,4 +1,4 @@
-import axios from '../config/axios';
+import axios from '../config/axiosBack';
 import { RECEIVE_USER } from '../constants/redux';
 
 const receiveUser = (user) => ({
