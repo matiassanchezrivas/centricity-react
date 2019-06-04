@@ -6,8 +6,8 @@ const receiveUser = (user) => ({
     user
 })
 
-export const fetchUser = (token) => dispatch => {
-    return axios.get(`/user/me`, { headers: { ['x-auth-sid']: token } })
+export const fetchUser = () => dispatch => {
+    return axios.get(`/user/me`)
         .then(res => res.data)
         .then(user => dispatch(receiveUser(user)))
 }

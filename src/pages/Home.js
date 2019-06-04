@@ -33,7 +33,7 @@ class Layout extends Component {
 const mapDispatchToProps = function (dispatch) {
     return (
         {
-            fetchUser: (token) => dispatch(fetchUser(token))
+            fetchUser: () => dispatch(fetchUser())
         }
     )
 }

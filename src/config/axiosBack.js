@@ -3,14 +3,30 @@ import axios from 'axios'
 // import store from '../store';
 import config from './config'
 
-// let IdToken = () => { return readCookie('xauthsid') }
+
+
+let IdToken = () => {
+    try {
+        let session = localStorage.getItem('cloudpoxee.session')
+        const parsedSession = JSON.parse(session);
+        if (parsedSession) {
+            const { sessionId } = parsedSession;
+            if (sessionId) return sessionId
+            throw 'missing session'
+        } else {
+            throw 'missing session'
+        }
+    } catch (e) {
+        return ''
+    }
+}
 
 const instance = axios.create({
     baseURL: config.CENTRICITY_BACK,
     timeout: 30000,
-    // headers: {
-    //     authorization: IdToken(),
-    // }
+    headers: {
+        ['x-auth-sid']: IdToken(),
+    }
 });
 
 // instance.interceptors.request.use(
