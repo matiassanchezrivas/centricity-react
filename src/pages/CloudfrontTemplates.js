@@ -20,16 +20,20 @@ class CloudfrontTemplates extends React.Component {
                 { title: 'Description', field: 'description' },
             ],
             data: this.props.templates,
-            selectedRow: {}
+            modal: 'new',
+            viewRow: {},
+            newRow: {}
         };
         this.reset = this.reset.bind(this);
         this.renderNew = this.renderNew.bind(this);
         this.renderView = this.renderView.bind(this);
+        this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.clickViewRow = this.clickViewRow.bind(this);
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.fileChangedHandler = this.fileChangedHandler.bind(this)
+
     }
 
     deleteRow() { }
@@ -83,8 +87,12 @@ class CloudfrontTemplates extends React.Component {
         }
     }
 
-    handleChange(field) {
-        console.log(field)
+    handleChange(field, e) {
+        console.log(field, e.target && e.target.value)
+
+        this.setState({
+            [this.state.modal + 'Row']: { ...this.state[this.state.modal + 'Row'], [field]: e.target ? e.target.value : e }
+        }, () => console.log(this.state))
     }
 
     reset() {
@@ -92,7 +100,6 @@ class CloudfrontTemplates extends React.Component {
     }
 
     async clickViewRow(event, rowData) {
-        // Do save operation
         console.log(event, rowData)
         const templateJSON = await axiosCF.post('/getTemplateFromS3', { id: rowData.id })
             .then(response => response.data)
@@ -101,13 +108,18 @@ class CloudfrontTemplates extends React.Component {
         this.setState({
             modal: 'view',
             templateJSON: templateJSON,
-            selectedRow: rowData,
+            viewRow: {
+                jsonFormatter: {
+                    notChanged: true,
+                    jsObject: templateJSON,
+                },
+                ...rowData
+            },
             openModal: true,
         })
     }
 
     async clickAddTemplate(event) {
-        // Do save operation
         console.log(event)
         this.setState({
             modal: 'new',
@@ -117,13 +129,30 @@ class CloudfrontTemplates extends React.Component {
                 fileName: '',
                 json: {},
                 approved: true,
+                jsonFormatter: {
+                    notChanged: true,
+                }
             },
             openModal: true,
         })
     }
 
+    saveTemplate() {
+        const { modal } = this.state;
+        const { name, description, jsonFormatter, id } = this.state[modal + 'Row']
+        const approved = true;
+        const cf = jsonFormatter.jsObject;
+        axiosCF.post('/saveTemplate', {
+            name, cf, description, approved, id
+        }).then(data =>
+            this.props.fetchTemplates()
+                .then(data => this.setState({ openModal: false }))
+        )
+            .catch(e => console.log(e))
+    }
+
     renderView() {
-        const { selectedRow, templateJSON } = this.state;
+        const { viewRow, templateJSON } = this.state;
         return (
             <Container>
                 <Typography variant="h6" id="modal-title">
@@ -139,8 +168,8 @@ class CloudfrontTemplates extends React.Component {
                             label="Name"
                             style={{ width: '100%' }}
                             // className={classes.textField}
-                            value={selectedRow.name}
-                            onChange={this.handleChange('name')}
+                            value={viewRow.name}
+                            onChange={(e) => this.handleChange('name', e)}
                             margin="normal"
                         />
                     </Grid>
@@ -150,15 +179,17 @@ class CloudfrontTemplates extends React.Component {
                             label="Description"
                             style={{ width: '100%' }}
                             // className={classes.textField}
-                            value={selectedRow.description}
-                            onChange={this.handleChange('description')}
+                            value={viewRow.description}
+                            multiline
+                            rowsMax="4"
+                            onChange={(e) => this.handleChange('description', e)}
                             margin="normal"
                         />
                     </Grid>
 
                     <FormControlLabel
                         control={
-                            <Switch checked={this.state.selectedRow.checked} onChange={this.handleChange('approved')} value="Approved" />
+                            <Switch checked={this.state.viewRow.checked} onChange={(e) => this.handleChange('approved', e)} value="Approved" />
                         }
                         label="Approved"
                     />
@@ -168,9 +199,10 @@ class CloudfrontTemplates extends React.Component {
                         // colors={'darktheme'}
                         locale={locale}
                         height='250px'
+                        onChange={(e) => this.handleChange('jsonFormatter', e)}
                     />
                     <Grid item xs={12}>
-                        <Button onClick={this.deleteRow(selectedRow)}>
+                        <Button onClick={this.deleteRow(viewRow)}>
                             Delete
                     </Button>
                         <Button onClick={this.saveTemplate}>
@@ -203,7 +235,7 @@ class CloudfrontTemplates extends React.Component {
                             style={{ width: '100%' }}
                             // className={classes.textField}
                             value={newRow.name}
-                            onChange={this.handleChange('name')}
+                            onChange={(e) => this.handleChange('name', e)}
                             margin="normal"
                         />
                     </Grid>
@@ -213,8 +245,10 @@ class CloudfrontTemplates extends React.Component {
                             label="Description"
                             style={{ width: '100%' }}
                             // className={classes.textField}
+                            multiline
+                            rowsMax="4"
                             value={newRow.description}
-                            onChange={this.handleChange('description')}
+                            onChange={(e) => this.handleChange('description', e)}
                             margin="normal"
                         />
                     </Grid>
@@ -228,7 +262,7 @@ class CloudfrontTemplates extends React.Component {
                     </Grid>
                     <FormControlLabel
                         control={
-                            <Switch checked={this.state.newRow.approved} onChange={this.handleChange('approved')} value="Approved" />
+                            <Switch checked={this.state.newRow.approved} onChange={(e) => this.handleChange('approved', e)} value="Approved" />
                         }
                         label="Approved"
                     />
@@ -238,7 +272,7 @@ class CloudfrontTemplates extends React.Component {
                         // colors={'darktheme'}
                         locale={locale}
                         height='250px'
-
+                        onChange={(e) => this.handleChange('jsonFormatter', e)}
                     />
                     <Grid item xs={12}>
                         <Button onClick={this.reset}>
