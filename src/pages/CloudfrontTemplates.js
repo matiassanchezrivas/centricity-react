@@ -13,16 +13,16 @@ class CloudfrontTemplates extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            newRow: {},
+            viewRow: {},
+            modal: 'new',
+            data: this.props.templates,
             columns: [
                 { title: 'Name', field: 'name' },
                 { title: 'Created by', field: 'created_by' },
                 { title: 'Approved by', field: 'approved_by' },
                 { title: 'Description', field: 'description' },
             ],
-            data: this.props.templates,
-            modal: 'new',
-            viewRow: {},
-            newRow: {}
         };
         this.reset = this.reset.bind(this);
         this.renderNew = this.renderNew.bind(this);
@@ -36,7 +36,11 @@ class CloudfrontTemplates extends React.Component {
 
     }
 
-    deleteRow() { }
+    deleteRow(rowData) {
+        return axiosCF.post('/deleteTemplate', { id: rowData.id })
+            .then(data => this.props.fetchTemplates().then(d => this.setState({ openModal: false })))
+            .catch(e => { alert('Delete error, please try again'); return 'error' })
+    }
 
     handleCloseModal() {
         this.setState({ openModal: false })
@@ -96,7 +100,22 @@ class CloudfrontTemplates extends React.Component {
     }
 
     reset() {
-
+        console.log('vaule', this.inputFile.value)
+        this.inputFile.value = ''
+        this.setState({
+            modal: 'new',
+            newRow: {
+                name: '',
+                description: '',
+                fileName: '',
+                json: {},
+                approved: true,
+                jsonFormatter: {
+                    notChanged: true,
+                }
+            },
+            openModal: true,
+        })
     }
 
     async clickViewRow(event, rowData) {
@@ -200,9 +219,10 @@ class CloudfrontTemplates extends React.Component {
                         locale={locale}
                         height='250px'
                         onChange={(e) => this.handleChange('jsonFormatter', e)}
+
                     />
                     <Grid item xs={12}>
-                        <Button onClick={this.deleteRow(viewRow)}>
+                        <Button onClick={(e) => this.deleteRow(viewRow)}>
                             Delete
                     </Button>
                         <Button onClick={this.saveTemplate}>
@@ -258,6 +278,7 @@ class CloudfrontTemplates extends React.Component {
                             onClick={e => console.log(e)}
                             accept="application/json"
                             onChange={this.fileChangedHandler}
+                            inputRef={ref => this.inputFile = ref}
                         />
                     </Grid>
                     <FormControlLabel
@@ -273,6 +294,7 @@ class CloudfrontTemplates extends React.Component {
                         locale={locale}
                         height='250px'
                         onChange={(e) => this.handleChange('jsonFormatter', e)}
+
                     />
                     <Grid item xs={12}>
                         <Button onClick={this.reset}>
@@ -311,6 +333,9 @@ class CloudfrontTemplates extends React.Component {
                             isFreeAction: true
                         }
                     ]}
+                    editable={{
+                        onRowDelete: oldData => this.deleteRow(oldData)
+                    }}
                 />
                 <Modal
                     open={openModal}
