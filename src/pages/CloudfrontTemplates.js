@@ -30,9 +30,12 @@ class CloudfrontTemplates extends React.Component {
         this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.clickViewRow = this.clickViewRow.bind(this);
+        this.renderExecute = this.renderExecute.bind(this);
+        this.disableSaveBtn = this.disableSaveBtn.bind(this);
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
-        this.fileChangedHandler = this.fileChangedHandler.bind(this)
+        this.fileChangedHandler = this.fileChangedHandler.bind(this);
+        this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
 
     }
 
@@ -72,7 +75,8 @@ class CloudfrontTemplates extends React.Component {
             const reader = new FileReader();
             reader.onload = (event) => {
                 this.setState({
-                    newRow: { ...this.state.newRow, 
+                    newRow: {
+                        ...this.state.newRow,
                         json: JSON.parse(event.target.result),
                         jsonFormatter: {
                             jsObject: JSON.parse(event.target.result)
@@ -91,6 +95,8 @@ class CloudfrontTemplates extends React.Component {
                 return this.renderView();
             case 'new':
                 return this.renderNew();
+            case 'execute':
+                return this.renderExecute();
             default:
                 return this.renderView();
         }
@@ -124,7 +130,7 @@ class CloudfrontTemplates extends React.Component {
     }
 
     async clickViewRow(event, rowData) {
-        console.log(event, rowData)
+        console.log(rowData)
         const templateJSON = await axiosCF.post('/getTemplateFromS3', { id: rowData.id })
             .then(response => response.data)
             .catch(e => { })
@@ -143,8 +149,7 @@ class CloudfrontTemplates extends React.Component {
         })
     }
 
-    async clickAddTemplate(event) {
-        console.log(event)
+    async clickAddTemplate(rowData) {
         this.setState({
             modal: 'new',
             newRow: {
@@ -157,6 +162,15 @@ class CloudfrontTemplates extends React.Component {
                     notChanged: true,
                 }
             },
+            openModal: true,
+        })
+    }
+
+    async clickExecuteTemplate(event, rowData) {
+        this.setState({
+            modal: 'execute',
+            //set executeRow params
+            executeRow: rowData,
             openModal: true,
         })
     }
@@ -233,9 +247,16 @@ class CloudfrontTemplates extends React.Component {
                         <Button onClick={(e) => this.deleteRow(viewRow)}>
                             Delete
                     </Button>
-                        <Button onClick={this.saveTemplate}>
+                        <Button
+                            onClick={this.saveTemplate}
+                            color="primary"
+                            disabled={this.disableSaveBtn('view')}
+                        >
                             Save
-                    </Button>
+                        </Button>
+
+
+
                         <Button onClick={this.handleCloseModal}>
                             Cancel
                     </Button>
@@ -243,6 +264,51 @@ class CloudfrontTemplates extends React.Component {
                 </form>
             </Container>
         )
+    }
+
+    renderExecute() {
+        const { viewRow } = this.state;
+        return (
+            <Container>
+                <Typography variant="h6" id="modal-title">
+                    Execute template
+          </Typography>
+                <Typography variant="subtitle1" id="simple-modal-description">
+                    Click execute to confirm execution with the provided params
+          </Typography>
+                <form noValidate autoComplete="off">
+                    <Grid item xs={12}>
+                        {/* <TextField
+                            id="name"
+                            label="Name"
+                            style={{ width: '100%' }}
+                            // className={classes.textField}
+                            value={viewRow.name}
+                            onChange={(e) => this.handleChange('name', e)}
+                            margin="normal"
+                        /> */}
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Button
+                            onClick={this.saveTemplate}
+                            color="primary"
+                        >
+                            Execute
+                        </Button>
+                        <Button onClick={this.handleCloseModal}>
+                            Cancel
+                    </Button>
+                    </Grid>
+                </form>
+            </Container>
+        )
+    }
+
+    disableSaveBtn(modal) {
+        const { name, jsonFormatter, description } = this.state[modal + 'Row'];
+        return !(jsonFormatter.error === false || jsonFormatter.error === undefined) ||
+            !name || name === '' || !description || description === '';
     }
 
     renderNew() {
@@ -302,7 +368,6 @@ class CloudfrontTemplates extends React.Component {
                         locale={locale}
                         height='250px'
                         onChange={(e) => this.handleChange('jsonFormatter', e)}
-
                     />
                     <Grid item xs={12}>
                         <Button onClick={this.reset}>
@@ -329,17 +394,24 @@ class CloudfrontTemplates extends React.Component {
                     columns={state.columns}
                     data={state.data}
                     actions={[
+                        // ROW ACTIONS
+                        {
+                            icon: 'play_circle_filled',
+                            tooltip: 'Execute template',
+                            onClick: this.clickExecuteTemplate,
+                        },
                         {
                             icon: 'edit',
                             tooltip: 'Edit template',
                             onClick: this.clickViewRow,
                         },
+                        //FREE ACTIONS
                         {
                             icon: 'add_box',
                             tooltip: 'Add template',
                             onClick: this.clickAddTemplate,
                             isFreeAction: true
-                        }
+                        },
                     ]}
                     editable={{
                         onRowDelete: oldData => this.deleteRow(oldData)
