@@ -72,7 +72,12 @@ class CloudfrontTemplates extends React.Component {
             const reader = new FileReader();
             reader.onload = (event) => {
                 this.setState({
-                    newRow: { ...this.state.newRow, json: JSON.parse(event.target.result) }
+                    newRow: { ...this.state.newRow, 
+                        json: JSON.parse(event.target.result),
+                        jsonFormatter: {
+                            jsObject: JSON.parse(event.target.result)
+                        }
+                    }
                 })
                 console.log(event.target.result)
             };
@@ -160,7 +165,10 @@ class CloudfrontTemplates extends React.Component {
         const { modal } = this.state;
         const { name, description, jsonFormatter, id } = this.state[modal + 'Row']
         const approved = true;
-        const cf = jsonFormatter.jsObject;
+        let cf = jsonFormatter.jsObject;
+        if (modal === 'view' && jsonFormatter.notChanged) {
+            cf = { notChanged: true }
+        }
         axiosCF.post('/saveTemplate', {
             name, cf, description, approved, id
         }).then(data =>
