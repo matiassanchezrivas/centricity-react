@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates } from '../actions-creator/templates'
-import { Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
 import axiosCF from '../config/axiosCloudfront'
 import JSONInput from 'react-json-editor-ajrm';
@@ -32,6 +32,7 @@ class CloudfrontTemplates extends React.Component {
         this.clickViewRow = this.clickViewRow.bind(this);
         this.renderExecute = this.renderExecute.bind(this);
         this.disableSaveBtn = this.disableSaveBtn.bind(this);
+        this.executeTemplate = this.executeTemplate.bind(this);
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.fileChangedHandler = this.fileChangedHandler.bind(this);
@@ -58,6 +59,15 @@ class CloudfrontTemplates extends React.Component {
             console.log('act')
             this.setState({ data: this.props.templates });
         }
+    }
+
+    executeTemplate() {
+        const { id, selectedAccount } = this.state.executeRow;
+
+        console.log(id, selectedAccount)
+        axiosCF.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount })
+            .then(response => response.data)
+            .catch(e => { })
     }
 
     fileChangedHandler(e) {
@@ -103,8 +113,6 @@ class CloudfrontTemplates extends React.Component {
     }
 
     handleChange(field, e) {
-        console.log(field, e.target && e.target.value)
-
         this.setState({
             [this.state.modal + 'Row']: { ...this.state[this.state.modal + 'Row'], [field]: e.target ? e.target.value : e }
         }, () => console.log(this.state))
@@ -167,10 +175,15 @@ class CloudfrontTemplates extends React.Component {
     }
 
     async clickExecuteTemplate(event, rowData) {
+        const ca = await axiosCF.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
+            .then(response => response.data)
+            .catch(e => { })
+
         this.setState({
             modal: 'execute',
             //set executeRow params
-            executeRow: rowData,
+            executeRow: { ...rowData, cloudAccounts: ca },
+
             openModal: true,
         })
     }
@@ -267,7 +280,7 @@ class CloudfrontTemplates extends React.Component {
     }
 
     renderExecute() {
-        const { viewRow } = this.state;
+        const { executeRow } = this.state;
         return (
             <Container>
                 <Typography variant="h6" id="modal-title">
@@ -288,10 +301,22 @@ class CloudfrontTemplates extends React.Component {
                             margin="normal"
                         /> */}
                     </Grid>
-
+                    <FormControl style={{ width: '100%' }}>
+                        <InputLabel htmlFor="ca-simple">Cloud account</InputLabel>
+                        <Select
+                            value={executeRow.selectedAccount}
+                            onChange={(e) => this.handleChange('selectedAccount', e)}
+                            inputProps={{
+                                name: 'Cloud account',
+                                id: 'ca-simple',
+                            }}
+                        >
+                            {executeRow.cloudAccounts.map(ca => <MenuItem value={ca.id}>{ca.name}</MenuItem>)}
+                        </Select>
+                    </FormControl>
                     <Grid item xs={12}>
                         <Button
-                            onClick={this.saveTemplate}
+                            onClick={this.executeTemplate}
                             color="primary"
                         >
                             Execute
