@@ -36,6 +36,7 @@ class CloudfrontTemplates extends React.Component {
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.fileChangedHandler = this.fileChangedHandler.bind(this);
+        this.renderParamSelector = this.renderParamSelector.bind(this)
         this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
 
     }
@@ -112,10 +113,16 @@ class CloudfrontTemplates extends React.Component {
         }
     }
 
-    handleChange(field, e) {
-        this.setState({
-            [this.state.modal + 'Row']: { ...this.state[this.state.modal + 'Row'], [field]: e.target ? e.target.value : e }
-        }, () => console.log(this.state))
+    handleChange(field, e, param) {
+        if (!param) {
+            this.setState({
+                [this.state.modal + 'Row']: { ...this.state[this.state.modal + 'Row'], [field]: e.target ? e.target.value : e }
+            }, () => console.log(this.state))
+        } else {
+            this.setState({
+                executeRow: { ...this.state.executeRow, Parameters: { ...this.state.executeRow.Parameters, [field]: e.target.value } }
+            }, () => console.log(this.state))
+        }
     }
 
     reset() {
@@ -175,14 +182,30 @@ class CloudfrontTemplates extends React.Component {
     }
 
     async clickExecuteTemplate(event, rowData) {
+        //Get cloudaccounts
         const ca = await axiosCF.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
             .then(response => response.data)
             .catch(e => { })
+        //Get template from s3
+        const templateJSON = await axiosCF.post('/getTemplateFromS3', { id: rowData.id })
+            .then(response => response.data)
+            .catch(e => { })
+        console.log('TEMPLATE', templateJSON)
+
+        let Parameters = {}
+        if (templateJSON.Parameters) {
+            Object.keys(templateJSON.Parameters).forEach(param => {
+                Parameters[param] = templateJSON.Parameters[param].Default
+            })
+        }
+        console.log(Parameters)
 
         this.setState({
             modal: 'execute',
+            templateJSON,
+
             //set executeRow params
-            executeRow: { ...rowData, cloudAccounts: ca },
+            executeRow: { ...rowData, cloudAccounts: ca, Parameters, },
 
             openModal: true,
         })
@@ -203,6 +226,26 @@ class CloudfrontTemplates extends React.Component {
                 .then(data => this.setState({ openModal: false }))
         )
             .catch(e => console.log(e))
+    }
+
+    renderParamSelector(key, object) {
+        const { executeRow } = this.state;
+        console.log(key)
+        return (<div><TextField
+            id={key}
+            label={key}
+            style={{ width: '100%' }}
+            // className={classes.textField}
+            value={executeRow.Parameters[key]}
+            onChange={(e) => this.handleChange(key, e, 'Parameters')}
+            margin="normal"
+        />
+            <Typography variant="subtitle1" id="simple-modal-description">
+                Type: {object.Type}
+            </Typography>
+            <Typography variant="subtitle1" id="simple-modal-description">
+                Description: {object.Description}
+            </Typography></div>)
     }
 
     renderView() {
@@ -280,7 +323,8 @@ class CloudfrontTemplates extends React.Component {
     }
 
     renderExecute() {
-        const { executeRow } = this.state;
+        const { executeRow, templateJSON } = this.state;
+        console.log(templateJSON.Parameters)
         return (
             <Container>
                 <Typography variant="h6" id="modal-title">
@@ -288,6 +332,9 @@ class CloudfrontTemplates extends React.Component {
           </Typography>
                 <Typography variant="subtitle1" id="simple-modal-description">
                     Click execute to confirm execution with the provided params
+          </Typography>
+                <Typography variant="h6" id="modal-title">
+                    Settings
           </Typography>
                 <form noValidate autoComplete="off">
                     <Grid item xs={12}>
@@ -314,6 +361,12 @@ class CloudfrontTemplates extends React.Component {
                             {executeRow.cloudAccounts.map(ca => <MenuItem value={ca.id}>{ca.name}</MenuItem>)}
                         </Select>
                     </FormControl>
+                    <Typography variant="h6" id="modal-title">
+                        Parameters
+          </Typography>
+                    {templateJSON && templateJSON.Parameters && Object.keys(templateJSON.Parameters)
+                        .map((key) => this.renderParamSelector(key, templateJSON.Parameters[key]))}
+
                     <Grid item xs={12}>
                         <Button
                             onClick={this.executeTemplate}
