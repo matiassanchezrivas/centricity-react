@@ -231,15 +231,27 @@ class CloudfrontTemplates extends React.Component {
     renderParamSelector(key, object) {
         const { executeRow } = this.state;
         console.log(key)
-        return (<div><TextField
-            id={key}
-            label={key}
-            style={{ width: '100%' }}
-            // className={classes.textField}
-            value={executeRow.Parameters[key]}
-            onChange={(e) => this.handleChange(key, e, 'Parameters')}
-            margin="normal"
-        />
+        return (<div>{
+            object.AllowedValues ?
+                <FormControl style={{ width: '100%' }}>
+                    <InputLabel >{key}</InputLabel>
+                    <Select
+                        value={executeRow.Parameters[key]}
+                        onChange={(e) => this.handleChange(key, e, 'Parameters')}
+                    >
+                        {object.AllowedValues.map(option => <MenuItem value={option}>{option}</MenuItem>)}
+                    </Select>
+                </FormControl>
+                :
+                <TextField
+                    id={key}
+                    label={key}
+                    style={{ width: '100%' }}
+                    // className={classes.textField}
+                    value={executeRow.Parameters[key]}
+                    onChange={(e) => this.handleChange(key, e, 'Parameters')}
+                    margin="normal"
+                />}
             <Typography variant="subtitle1" id="simple-modal-description">
                 Type: {object.Type}
             </Typography>
