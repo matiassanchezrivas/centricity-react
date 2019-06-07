@@ -63,10 +63,10 @@ class CloudfrontTemplates extends React.Component {
     }
 
     executeTemplate() {
-        const { id, selectedAccount } = this.state.executeRow;
+        const { id, selectedAccount, Parameters } = this.state.executeRow;
 
         console.log(id, selectedAccount)
-        axiosCF.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount })
+        axiosCF.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters  })
             .then(response => response.data)
             .catch(e => { })
     }
