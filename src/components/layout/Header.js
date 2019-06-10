@@ -15,7 +15,6 @@ class Header extends Component {
   render() {
     const { toggleClientsBar, toggleOptionsBar, menuOpen, currentUser, currentClient, loading, loadingBlock } = this.props
     const isAuthorized = () => true
-    const openClientsPanel = (e) => console.log(e)
     return (
       <div className="topbar">
         {/* Button toggle menu */}
@@ -23,8 +22,8 @@ class Header extends Component {
           <span className="lines"></span>
         </button>
         {/* Logo */}
-        <img className="logo" src={logoHeader} ng-click="go('app.dashboard')" />
-        <img className="logo-small" src={logoHeaderSmall} ng-click="go('app.dashboard')" />
+        <img className="logo" src={logoHeader} onClick={window.location.replace('/#/dashboard')} />
+        <img className="logo-small" src={logoHeaderSmall} onClick="go('app.dashboard')" />
         {/* Loading */}
         {loading && !loadingBlock && <div className='active animated fadeIn'></div>}
         {/* User bar */}
@@ -66,7 +65,7 @@ const mapDispatchToProps = function (dispatch) {
 const mapStateToProps = function (state) {
   return {
     currentUser: state.users.currentUser,
-    currentClient: null
+    currentClient: state.clients.currentClient
   };
 }
 

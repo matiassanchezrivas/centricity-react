@@ -3,6 +3,9 @@ import _ from 'lodash'
 import config_menu from '../../config/menu'
 import config from '../../config/config'
 import I18n from '../../config/i18n'
+import { fetchClients, fetchClient } from '../../actions-creator/client'
+import { connect } from 'react-redux';
+
 I18n.setLanguage('en');
 
 const hardcodedRoles = ['CH_SYSTEM_ADMIN']
@@ -11,7 +14,25 @@ class Sidebar extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      filteredClients: [],
     }
+    this.filterClients = this.filterClients.bind(this)
+  }
+
+  componentDidMount() {
+    this.props.fetchClients()
+      .then(filteredClients => { this.setState({ filteredClients: filteredClients.clients }) })
+      .then(e => this.filterClients({ target: { value: '' } }))
+
+  }
+
+  filterClients(e) {
+    if (!this.props.clients) return
+    const { value } = e.target;
+
+    const filteredClients = this.props.clients.map(c => { if (c.name.toLowerCase().indexOf(value.toLowerCase()) !== -1) return c }).filter(e => { if (e && e.enabled) return e })
+    console.log(filteredClients)
+    this.setState({ filteredClients })
   }
 
   renderMenu(menu, roles) {
@@ -29,25 +50,34 @@ class Sidebar extends Component {
     )
   }
 
+  selectClient(client) {
+    this.props.fetchClient(client);
+    this.props.toggleClientsBar();
+  }
+
   render() {
     const { toggleClientsBar } = this.props;
+    const { filteredClients } = this.state;
     return (
-      <div class="aside" tabindex="-1" role="dialog">
-        <div class="aside-dialog">
-          <div class="aside-content">
-            <div class="aside-header">
-              <div class="aside-close" onClick={toggleClientsBar}>&#xe2aa;</div>
-              <h4 class="aside-title" translate>{I18n.get('ADMIN_MENU_CLIENTS_TITLE')}</h4>
+      <div className="aside" tabindex="-1" role="dialog">
+        <div className="aside-dialog">
+          <div className="aside-content">
+            <div className="aside-header">
+              <div className="aside-close" onClick={toggleClientsBar}>&#xe2aa;</div>
+              <h4 className="aside-title">{I18n.get('ADMIN_MENU_CLIENTS_TITLE')}</h4>
             </div>
-            <div class="aside-body">
-              <div class="customer-actions">
-                <input class="customer-search" ng-model="search.name" />
-                <div class="customer-search-icon">F</div>
-                <button class="customer-manage" ui-sref="app.customers-management" ng-click="$hide()" translate>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
+            <div className="aside-body">
+              <div className="customer-actions">
+                <input onChange={this.filterClients} className="customer-search" ng-model="search.name" />
+                <div className="customer-search-icon">F</div>
+                <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace('/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
               </div>
-              <div ng-if="clients.length === 0" class="no-customers" translate>{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>
-              <div ng-repeat="client in clients | filter:search | orderBy:'name'" ng-class="{'disabled': !client.enabled}"
-                class="customer-selection" ng-click="selectClient(client)">{'client.name'}</div>
+              {/* No customers */}
+              {(!filteredClients || !filteredClients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
+              {/* Customers list */}
+              {filteredClients && filteredClients.length && filteredClients.map(c => <div
+                className="customer-selection" onClick={e => this.selectClient(c)}>{c.name}</div>
+              )}
             </div>
           </div>
         </div>
@@ -55,4 +85,21 @@ class Sidebar extends Component {
     )
   }
 }
-export default Sidebar
+
+const mapDispatchToProps = function (dispatch) {
+  return (
+    {
+      fetchClients: () => dispatch(fetchClients()),
+      fetchClient: (client) => dispatch(fetchClient(client))
+    }
+  )
+}
+
+const mapStateToProps = function (state) {
+  return {
+    clients: state.clients.clients,
+    currentClient: state.clients.currentClient,
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
