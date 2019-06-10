@@ -10,13 +10,15 @@ class Layout extends Component {
         super(props)
 
         this.state = {
-            menuOpen: false,
+            optionsMenuOpen: false,
+            clientsMenuOpen: false,
             sublevel: 0,
             level: 0,
             loading: true,
         }
 
-        this.toggleMenu = this.toggleMenu.bind(this);
+        this.toggleOptionsBar = this.toggleOptionsBar.bind(this);
+        this.toggleClientsBar = this.toggleClientsBar.bind(this);
     }
 
     async componentDidMount() {
@@ -37,11 +39,11 @@ class Layout extends Component {
         }
     }
 
-    toggleMenu() {
-
+    toggleOptionsBar() {
+        const { level, optionsMenuOpen } = this.state;
         const { level, menuOpen } = this.state;
         this.setState({
-            menuOpen: !menuOpen,
+            optionsMenuOpen: !optionsMenuOpen,
 
         });
 
@@ -86,24 +88,34 @@ class Layout extends Component {
         // },
     }
 
+    toggleClientsBar() {
+        const { clientsMenuOpen } = this.state;
+        console.log('open/close')
+        this.setState({
+            clientsMenuOpen: !clientsMenuOpen,
+        });
+    }
+
     render() {
-        const { menuOpen, loading } = this.state;
+        const { clientsMenuOpen, optionsMenuOpen, loading } = this.state;
         return (
             !loading && <div className='aside-open aside-with-am-fade-and-slide-right'>
-                {/* <Clientsbar /> */}
+
+                {clientsMenuOpen && <Clientsbar toggleClientsBar={this.toggleClientsBar} />}
                 <div className="ch-container ng-scope container">
                     <div
                         id="ch-pusher"
-                        className={`ch-pusher ${menuOpen ? 'ch-pushed' : ''} `}
-                        style={menuOpen ? Styles.translateOpen : Styles.translateClosed}
+                        className={`ch-pusher ${optionsMenuOpen ? 'ch-pushed' : ''} `}
+                        style={optionsMenuOpen ? Styles.translateOpen : Styles.translateClosed}
                     >
                         {/* ch menu */}
                         <Sidebar />
                         <div className="ch-scroller">
                             <div className="scroller-inner">
                                 <Header
-                                    toggleMenu={this.toggleMenu}
-                                    menuOpen={menuOpen}
+                                    toggleOptionsBar={this.toggleOptionsBar}
+                                    toggleClientsBar={this.toggleClientsBar}
+                                    menuOpen={optionsMenuOpen}
                                 />
                                 <div className="state-content">
                                     <div className="cp-content ng-scope">

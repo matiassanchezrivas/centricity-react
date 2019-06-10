@@ -30,12 +30,13 @@ class Sidebar extends Component {
   }
 
   render() {
+    const { toggleClientsBar } = this.props;
     return (
       <div class="aside" tabindex="-1" role="dialog">
         <div class="aside-dialog">
           <div class="aside-content">
             <div class="aside-header">
-              <div class="aside-close" ng-click="$hide()">&#xe2aa;</div>
+              <div class="aside-close" onClick={toggleClientsBar}>&#xe2aa;</div>
               <h4 class="aside-title" translate>{I18n.get('ADMIN_MENU_CLIENTS_TITLE')}</h4>
             </div>
             <div class="aside-body">
