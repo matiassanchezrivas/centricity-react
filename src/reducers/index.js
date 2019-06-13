@@ -8,5 +8,5 @@ export default combineReducers({
     users: usersReducer,
     templates: templatesReducer,
     clients: clientsReducer,
-    configurationsReducer: configurationsReducer,
+    configurations: configurationsReducer,
 })
