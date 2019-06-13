@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import logoHeader from '../../images/logo-header.png'
 import logoHeaderSmall from '../../images/logo-header-small.png'
+import Dropdown from '../../components/Dropdown'
 import { connect } from 'react-redux';
 import I18n from '../../config/i18n'
 I18n.setLanguage('en');
@@ -9,11 +10,13 @@ class Header extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      dropdownMenu: false,
     }
   }
 
   render() {
     const { toggleClientsBar, toggleOptionsBar, menuOpen, currentUser, currentClient, loading, loadingBlock } = this.props
+    const { dropdownMenu } = this.state;
     const isAuthorized = () => true
     return (
       <div className="topbar">
@@ -34,8 +37,9 @@ class Header extends Component {
               {I18n.get('WELCOME')} <span className="usermenu__name">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
             <span className="usermenu" data-animation="am-flip-x" bs-dropdown="dropdown" data-placement="bottom-right">
-              {I18n.get('WELCOME')} <span className="usermenu__name" onClick={toggleClientsBar} data-icon-after="&#xe5ca;">{`${currentUser.name} ${currentUser.lastName}`}</span>
+              {I18n.get('WELCOME')} <span className="usermenu__name" onClick={() => this.setState({ dropdownMenu: !dropdownMenu })} data-icon-after="&#xe5ca;">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
+            {dropdownMenu && <Dropdown />}
           </div>
           <button type="button" role="button" aria-label="Log out" className="userbar__logout" ng-if="isAuthorized([roles.CH_USER_ADMIN,roles.CH_USER_LIMITED, roles.CH_USER])" ng-click="$emit('logout')"></button>
 
@@ -45,13 +49,14 @@ class Header extends Component {
               <span>{currentClient ? currentClient.name : I18n.get('ADMIN_MENU_CLIENTS_SELECTION')}</span>
             </div>
           </div>}
+
         </div>
         {/* User bar responsive */}
         {/* <div className="user-bar-responsive" ng-className="{'animated fadeOut': loading && !loadingBlock, 'animated fadeIn': !loading }">
           <div className="usermenu" data-animation="am-flip-x" bs-dropdown="dropdown" data-placement="bottom-right"></div>
           <div className="clientmenu" ng-if="isAuthorized([roles.CH_SYSTEM_ADMIN])">&#xe0e6;</div>
         </div> */}
-      </div>
+      </div >
     )
   }
 }
