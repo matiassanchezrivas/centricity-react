@@ -13,26 +13,10 @@ const hardcodedRoles = ['CH_SYSTEM_ADMIN']
 class Sidebar extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      filteredClients: [],
-    }
-    this.filterClients = this.filterClients.bind(this)
   }
 
   componentDidMount() {
     this.props.fetchClients()
-      .then(filteredClients => { this.setState({ filteredClients: filteredClients.clients }) })
-      .then(e => this.filterClients({ target: { value: '' } }))
-
-  }
-
-  filterClients(e) {
-    if (!this.props.clients) return
-    const { value } = e.target;
-
-    const filteredClients = this.props.clients.map(c => { if (c.name.toLowerCase().indexOf(value.toLowerCase()) !== -1) return c }).filter(e => { if (e && e.enabled) return e })
-    console.log(filteredClients)
-    this.setState({ filteredClients })
   }
 
   renderMenu(menu, roles) {
@@ -56,8 +40,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { toggleClientsBar } = this.props;
-    const { filteredClients } = this.state;
+    const { toggleClientsBar, clients } = this.props;
     return (
       <div className="aside" tabindex="-1" role="dialog">
         <div className="aside-dialog">
@@ -73,9 +56,9 @@ class Sidebar extends Component {
                 <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace('/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
               </div>
               {/* No customers */}
-              {(!filteredClients || !filteredClients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
+              {(!clients || !clients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
               {/* Customers list */}
-              {filteredClients && filteredClients.length && filteredClients.map(c => <div
+              {clients && clients.length && clients.map(c => <div
                 className="customer-selection" onClick={e => this.selectClient(c)}>{c.name}</div>
               )}
             </div>

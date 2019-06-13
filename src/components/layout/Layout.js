@@ -4,6 +4,7 @@ import Sidebar from './Sidebar'
 import Clientsbar from './Clientsbar'
 import { fetchUser } from '../../actions-creator/user'
 import { connect } from 'react-redux';
+import { fetchClients, fetchClient } from '../../actions-creator/client';
 
 class Layout extends Component {
     constructor(props) {
@@ -22,29 +23,35 @@ class Layout extends Component {
     }
 
     async componentDidMount() {
+        this.props.fetchClients();
         let session = localStorage.getItem('cloudpoxee.session')
         console.log('session', session);
         if (!session) {
-            window.location.replace('/#/login')
+            // window.location.replace('/#/login')
+            const u = await this.props.fetchUser()
+                .catch(e => {
+                    // window.location.replace('/#/login')
+                    this.setState({ loading: false })
+                })
+                .then(e => this.setState({ loading: false }))
         } else {
             //ir a /user/me
             const parsedSession = JSON.parse(session);
             console.log('parsedSession', parsedSession);
-
-            const u = await this.props.fetchUser(parsedSession.sessionId)
+            // if (!parsedSession.user.customer) window.location.replace('#/dashboard')
+            await this.props.fetchClient(parsedSession.user.customer)
+            await this.props.fetchUser(parsedSession.sessionId)
+                .then(e => this.setState({ loading: false }))
                 .catch(e => {
                     window.location.replace('/#/login')
                 })
-                .then(e => this.setState({ loading: false }))
         }
     }
 
     toggleOptionsBar() {
         const { level, optionsMenuOpen } = this.state;
-        const { level, menuOpen } = this.state;
         this.setState({
             optionsMenuOpen: !optionsMenuOpen,
-
         });
 
 
@@ -107,6 +114,7 @@ class Layout extends Component {
                         id="ch-pusher"
                         className={`ch-pusher ${optionsMenuOpen ? 'ch-pushed' : ''} `}
                         style={optionsMenuOpen ? Styles.translateOpen : Styles.translateClosed}
+
                     >
                         {/* ch menu */}
                         <Sidebar />
@@ -117,7 +125,7 @@ class Layout extends Component {
                                     toggleClientsBar={this.toggleClientsBar}
                                     menuOpen={optionsMenuOpen}
                                 />
-                                <div className="state-content">
+                                <div className="state-content" onClick={() => console.log('asd')}>
                                     <div className="cp-content ng-scope">
                                         {this.props.children}
                                     </div>
@@ -138,7 +146,9 @@ const Styles = {
 const mapDispatchToProps = function (dispatch) {
     return (
         {
-            fetchUser: () => dispatch(fetchUser())
+            fetchUser: () => dispatch(fetchUser()),
+            fetchClients: () => dispatch(fetchClients()),
+            fetchClient: (client) => dispatch(fetchClient(client))
         }
     )
 }

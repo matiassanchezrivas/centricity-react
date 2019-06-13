@@ -6,10 +6,16 @@ const receiveClients = (clients) => ({
     clients
 })
 
-const receiveClient = (client) => ({
-    type: RECEIVE_CLIENT,
-    client
-})
+const receiveClient = (client) => {
+    let session = localStorage.getItem('cloudpoxee.session')
+    let parsedSession = JSON.parse(session);
+    parsedSession.user.customer = client;
+    localStorage.setItem('cloudpoxee.session', JSON.stringify(parsedSession));
+    return {
+        type: RECEIVE_CLIENT,
+        client
+    }
+}
 
 export const fetchClients = () => dispatch => {
     return axiosBack.get(`/customer/all`)

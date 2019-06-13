@@ -67,7 +67,6 @@ class Dropdown extends Component {
 
     render() {
         const { toggleClientsBar } = this.props;
-        const { filteredClients } = this.state;
         return (
             <ul tabindex="-1" class="dropdown-menu ng-scope am-flip-x bottom-right" role="menu" ng-show="content &amp;&amp; content.length" style={{ top: 62, left: 85, display: 'block', visibility: 'visible' }}>
                 {dropdown.map(option =>

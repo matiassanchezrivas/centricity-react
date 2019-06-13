@@ -5,6 +5,7 @@ import roles from '../../constants/roles'
 import config_menu from '../../config/menu'
 import config from '../../config/config'
 import { connect } from 'react-redux';
+import { withRouter } from "react-router";
 import I18n from '../../config/i18n'
 I18n.setLanguage('en');
 
@@ -50,13 +51,17 @@ const menu = [
   { name: "MENU_CREDENTIALS", class: '', ref: "app.credentials", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED, roles.CH_SYSTEM_ADMIN] },
   { name: "MENU_CUSTOMER_SETTINGS", class: '', ref: "app.customer-settings", roles: [roles.CH_SYSTEM_ADMIN] },
   { name: "LOGS_REPORTS", class: '', ref: "app.logs-report", roles: [roles.CH_SYSTEM_ADMIN, roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] },
-  { name: "MENU_SETTINGS", class: '', ref: "app.customer-settings", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] }]
+  { name: "MENU_SETTINGS", class: '', ref: "app.customer-settings", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] },
+  { name: "MENU_CLOUDFORMATION_TEMPLATES", onClick: '/cloudformationTemplates', class: '', ref: "app.customer-settings", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] },
+  { name: "MENU_CONFIGURATIONS", class: '', onClick: '/configurations', ref: "app.customer-settings", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED] }]
+
 
 class Sidebar extends Component {
   constructor(props) {
     super(props)
     this.state = {
     }
+    this.renderMenu = this.renderMenu.bind(this);
   }
 
   renderMenu(menu, roles) {
@@ -69,7 +74,7 @@ class Sidebar extends Component {
               {
                 item.submenu ?
                   <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after='&#xe5cd;' class="ch-menu__link">{I18n.get(item.name)}</a> :
-                  <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
+                  <a onClick={item.onClick ? () => this.props.history.push(item.onClick) : null} href={item.onClick ? null : item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
               }
             </li>
             : null
@@ -106,4 +111,4 @@ const mapStateToProps = function (state) {
   };
 }
 
-export default connect(mapStateToProps, null)(Sidebar);
+export default connect(mapStateToProps, null)(withRouter(Sidebar));
