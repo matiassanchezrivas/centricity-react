@@ -1,4 +1,4 @@
-import axios from '../config/axiosCloudfront';
+import axios from '../config/axiosCloudformation';
 import { RECEIVE_TEMPLATES } from '../constants/redux';
 
 const receiveTemplate = (templates) => ({

@@ -20,7 +20,7 @@ let IdToken = () => {
 }
 
 const instance = axios.create({
-    baseURL: config.CENTRICITY_CLOUDFRONT,
+    baseURL: config.CENTRICITY_CLOUDFORMATION,
     timeout: 30000,
     headers: {
         ['x-auth-sid']: IdToken(),

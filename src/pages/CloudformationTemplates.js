@@ -4,12 +4,12 @@ import MaterialTable from 'material-table';
 import { fetchTemplates } from '../actions-creator/templates'
 import { FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
-import axiosCF from '../config/axiosCloudfront'
+import axiosCF from '../config/axiosCloudformation'
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 
 
-class CloudfrontTemplates extends React.Component {
+class cloudformationTemplates extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -66,7 +66,7 @@ class CloudfrontTemplates extends React.Component {
         const { id, selectedAccount, Parameters } = this.state.executeRow;
 
         console.log(id, selectedAccount)
-        axiosCF.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters  })
+        axiosCF.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters })
             .then(response => response.data)
             .catch(e => { })
     }
@@ -536,4 +536,4 @@ const mapStateToProps = function (state) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CloudfrontTemplates);
+export default connect(mapStateToProps, mapDispatchToProps)(cloudformationTemplates);
