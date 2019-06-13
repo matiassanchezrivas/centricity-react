@@ -1,4 +1,4 @@
-import axios from '../config/axiosCloudformation';
+import { axiosCloudformation } from '../config/axios';
 import { RECEIVE_TEMPLATES } from '../constants/redux';
 
 const receiveTemplate = (templates) => ({
@@ -7,7 +7,7 @@ const receiveTemplate = (templates) => ({
 })
 
 export const fetchTemplates = () => dispatch => {
-    return axios.get(`/getTemplates`)
+    return axiosCloudformation.get(`/getTemplates`)
         .then(res => res.data)
         .then(templates => dispatch(receiveTemplate(templates)))
 }

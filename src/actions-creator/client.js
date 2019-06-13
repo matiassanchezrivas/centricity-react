@@ -1,4 +1,4 @@
-import axios from '../config/axiosBack';
+import { axiosBack } from '../config/axios';
 import { RECEIVE_CLIENTS, RECEIVE_CLIENT } from '../constants/redux';
 
 const receiveClients = (clients) => ({
@@ -12,7 +12,7 @@ const receiveClient = (client) => ({
 })
 
 export const fetchClients = () => dispatch => {
-    return axios.get(`/customer/all`)
+    return axiosBack.get(`/customer/all`)
         .then(res => res.data)
         .then(clients => dispatch(receiveClients(clients)))
 }

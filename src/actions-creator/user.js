@@ -1,4 +1,4 @@
-import axios from '../config/axiosBack';
+import { axiosBack } from '../config/axios';
 import { RECEIVE_USER } from '../constants/redux';
 
 const receiveUser = (user) => ({
@@ -7,7 +7,7 @@ const receiveUser = (user) => ({
 })
 
 export const fetchUser = () => dispatch => {
-    return axios.get(`/user/me`)
+    return axiosBack.get(`/user/me`)
         .then(res => res.data)
         .then(user => dispatch(receiveUser(user)))
 }

@@ -19,8 +19,24 @@ let IdToken = () => {
     }
 }
 
-const instance = axios.create({
+export const axiosCloudformation = axios.create({
     baseURL: config.CENTRICITY_CLOUDFORMATION,
+    timeout: 30000,
+    headers: {
+        ['x-auth-sid']: IdToken(),
+    }
+});
+
+export const axiosBack = axios.create({
+    baseURL: config.CENTRICITY_BACK,
+    timeout: 30000,
+    headers: {
+        ['x-auth-sid']: IdToken(),
+    }
+});
+
+export const axiosConfigurations = axios.create({
+    baseURL: config.CENTRICITY_CONFIGURATIONS,
     timeout: 30000,
     headers: {
         ['x-auth-sid']: IdToken(),
@@ -49,5 +65,3 @@ const instance = axios.create({
 //     }
 //     return Promise.reject(error);
 // });
-
-export default instance;

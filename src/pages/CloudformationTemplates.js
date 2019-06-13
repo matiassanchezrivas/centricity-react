@@ -4,7 +4,7 @@ import MaterialTable from 'material-table';
 import { fetchTemplates } from '../actions-creator/templates'
 import { FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
-import axiosCF from '../config/axiosCloudformation'
+import { axiosCloudformation } from '../config/axios'
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 
@@ -42,7 +42,7 @@ class cloudformationTemplates extends React.Component {
     }
 
     deleteRow(rowData) {
-        return axiosCF.post('/deleteTemplate', { id: rowData.id })
+        return axiosCloudformation.post('/deleteTemplate', { id: rowData.id })
             .then(data => this.props.fetchTemplates().then(d => this.setState({ openModal: false })))
             .catch(e => { alert('Delete error, please try again'); return 'error' })
     }
@@ -66,7 +66,7 @@ class cloudformationTemplates extends React.Component {
         const { id, selectedAccount, Parameters } = this.state.executeRow;
 
         console.log(id, selectedAccount)
-        axiosCF.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters })
+        axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters })
             .then(response => response.data)
             .catch(e => { })
     }
@@ -146,7 +146,7 @@ class cloudformationTemplates extends React.Component {
 
     async clickViewRow(event, rowData) {
         console.log(rowData)
-        const templateJSON = await axiosCF.post('/getTemplateFromS3', { id: rowData.id })
+        const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id })
             .then(response => response.data)
             .catch(e => { })
         console.log(templateJSON)
@@ -183,11 +183,11 @@ class cloudformationTemplates extends React.Component {
 
     async clickExecuteTemplate(event, rowData) {
         //Get cloudaccounts
-        const ca = await axiosCF.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
-        const templateJSON = await axiosCF.post('/getTemplateFromS3', { id: rowData.id })
+        const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id })
             .then(response => response.data)
             .catch(e => { })
         console.log('TEMPLATE', templateJSON)
@@ -219,7 +219,7 @@ class cloudformationTemplates extends React.Component {
         if (modal === 'view' && jsonFormatter.notChanged) {
             cf = { notChanged: true }
         }
-        axiosCF.post('/saveTemplate', {
+        axiosCloudformation.post('/saveTemplate', {
             name, cf, description, approved, id
         }).then(data =>
             this.props.fetchTemplates()
