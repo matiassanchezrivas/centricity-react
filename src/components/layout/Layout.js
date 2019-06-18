@@ -97,7 +97,6 @@ class Layout extends Component {
 
     toggleClientsBar() {
         const { clientsMenuOpen } = this.state;
-        console.log('open/close')
         this.setState({
             clientsMenuOpen: !clientsMenuOpen,
         });
