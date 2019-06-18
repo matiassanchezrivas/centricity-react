@@ -116,7 +116,7 @@ class Layout extends Component {
 
                     >
                         {/* ch menu */}
-                        <Sidebar />
+                        <Sidebar toggleOptionsBar={this.toggleOptionsBar} />
                         <div className="ch-scroller">
                             <div className="scroller-inner">
                                 <Header

@@ -62,9 +62,16 @@ class Sidebar extends Component {
     this.state = {
     }
     this.renderMenu = this.renderMenu.bind(this);
+    this.onClickReact = this.onClickReact.bind(this);
+  }
+
+  onClickReact(link, callback) {
+    this.props.history.push(link);
+    if (callback) callback();
   }
 
   renderMenu(menu, roles) {
+    const { toggleOptionsBar } = this.props;
     return (
       <ul>
         {menu.map(item => {
@@ -74,7 +81,7 @@ class Sidebar extends Component {
               {
                 item.submenu ?
                   <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after='&#xe5cd;' class="ch-menu__link">{I18n.get(item.name)}</a> :
-                  <a onClick={item.onClick ? () => this.props.history.push(item.onClick) : null} href={item.onClick ? null : item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
+                  <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
               }
             </li>
             : null
