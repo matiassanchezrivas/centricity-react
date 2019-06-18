@@ -13,6 +13,10 @@ const hardcodedRoles = ['CH_SYSTEM_ADMIN']
 class Sidebar extends Component {
   constructor(props) {
     super(props)
+    this.filterClients = this.filterClients.bind(this);
+    this.state = {
+      filteredClients: this.props.clients
+    };
   }
 
   componentDidMount() {
@@ -34,13 +38,21 @@ class Sidebar extends Component {
     )
   }
 
+  filterClients(e) {
+    if (!this.props.clients) return
+    const { value } = e.target;
+    const filteredClients = this.props.clients.map(c => { if (c.name.toLowerCase().indexOf(value.toLowerCase()) !== -1) return c }).filter(e => { if (e && e.enabled) return e })
+    this.setState({ filteredClients })
+  }
+
   selectClient(client) {
     this.props.fetchClient(client);
     this.props.toggleClientsBar();
   }
 
   render() {
-    const { toggleClientsBar, clients } = this.props;
+    const { toggleClientsBar } = this.props;
+    const { filteredClients } = this.state;
     return (
       <div className="aside" tabindex="-1" role="dialog">
         <div className="aside-dialog">
@@ -53,12 +65,12 @@ class Sidebar extends Component {
               <div className="customer-actions">
                 <input onChange={this.filterClients} className="customer-search" ng-model="search.name" />
                 <div className="customer-search-icon">F</div>
-                <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace('/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
+                <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace(+'/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
               </div>
               {/* No customers */}
-              {(!clients || !clients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
+              {(!filteredClients || !filteredClients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
               {/* Customers list */}
-              {clients && clients.length && clients.map(c => <div
+              {filteredClients && filteredClients.length && filteredClients.map(c => <div
                 className="customer-selection" onClick={e => this.selectClient(c)}>{c.name}</div>
               )}
             </div>
