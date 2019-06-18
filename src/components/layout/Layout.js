@@ -108,7 +108,7 @@ class Layout extends Component {
             !loading && <div className='aside-open aside-with-am-fade-and-slide-right'>
 
                 {clientsMenuOpen && <Clientsbar toggleClientsBar={this.toggleClientsBar} />}
-                <div className="ch-container ng-scope container">
+                <div className="ch-container ng-scope">
                     <div
                         id="ch-pusher"
                         className={`ch-pusher ${optionsMenuOpen ? 'ch-pushed' : ''} `}

@@ -11,7 +11,7 @@ I18n.setLanguage('en');
 const dropdown = [
     {
         'text': 'MY_PROFILE',
-        'click': 'goProfile()'
+        'link': '/#/profile'
     },
     {
         'divider': true
@@ -25,11 +25,11 @@ const dropdown = [
     },
     {
         'text': 'English',
-        'click': 'selectLanguage("en_US")'
+        'languageChange': "en_US"
     },
     {
         'text': 'Español',
-        'click': 'selectLanguage("es_ES")'
+        'languageChange': "es_ES"
     },
     {
         'divider': true
@@ -71,7 +71,7 @@ class Dropdown extends Component {
             <ul tabindex="-1" class="dropdown-menu ng-scope am-flip-x bottom-right" role="menu" ng-show="content &amp;&amp; content.length" style={{ top: 62, left: 85, display: 'block', visibility: 'visible' }}>
                 {dropdown.map(option =>
                     (option.divider) ? <li role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope divider" ></li> :
-                        <li role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope" > <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider &amp;&amp; item.click" ng-click="$eval(item.click);$hide()" ng-bind-html="item.text" class="ng-binding ng-scope">{I18n.get((option.text))}
+                        <li onClick={option.link ? () => window.location.replace(option.link) : null} role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope" > <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider &amp;&amp; item.click" ng-click="$eval(item.click);$hide()" ng-bind-html="item.text" class="ng-binding ng-scope">{I18n.get((option.text))}
                         </a></li>
                 )}
             </ul>

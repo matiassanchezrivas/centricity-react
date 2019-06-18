@@ -1698,6 +1698,7 @@ a[ng-click] {
 /* line 58, ../../app/styles/gui/_ui-tabbedNav.scss */
 .tab__bar {
   margin-bottom: 10px;
+  z-index: 100;
 }
 /* line 61, ../../app/styles/gui/_ui-tabbedNav.scss */
 .tab__bar .dropdown-menu {
@@ -6872,7 +6873,7 @@ body[state="app.welcome"] .feedback-btn, body[state="app.profile"] .feedback-btn
   height: 50px;
   background: #25262f;
   position: relative;
-  z-index: 2;
+  z-index: 13;
 }
 @media (min-width: 900px) {
   /* line 530, ../../app/styles/main.scss */
