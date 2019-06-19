@@ -81,8 +81,8 @@ class Sidebar extends Component {
             <li>
               {
                 item.submenu ?
-                  <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after='&#xe5cd;' class="ch-menu__link">{I18n.get(item.name)}</a> :
-                  <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
+                  <a href={null} ui-sref-active="active" data-icon-after='&#xe5cd;' class="ch-menu__link">{I18n.get(item.name)}</a> :
+                  <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
               }
             </li>
             : null
