@@ -19,8 +19,8 @@ export const fetchTables = () => dispatch => {
         .then(tables => dispatch(receiveTable(tables)))
 }
 
-export const fetchItems = (selectedTable) => dispatch => {
-    return axiosConfigurations.post(`/getItems`, { tableName: selectedTable })
+export const fetchItems = (selectedTable, keys) => dispatch => {
+    return axiosConfigurations.post(`/scanTable`, { tableName: selectedTable, attributeNames: keys, conditions: [], pagination: { limit: 100 } })
         .then(res => res.data)
         .then(items => dispatch(receiveItems(items, selectedTable)))
 }
