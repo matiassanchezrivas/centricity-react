@@ -12,13 +12,6 @@ class cloudformationTemplates extends React.Component {
             newRow: {},
             viewRow: {},
             modal: 'new',
-            data: this.props.templates,
-            columns: [
-                { title: 'Name', field: 'name' },
-                { title: 'Created by', field: 'created_by' },
-                { title: 'Approved by', field: 'approved_by' },
-                { title: 'Description', field: 'description' },
-            ],
         };
         // this.reset = this.reset.bind(this);
         // this.renderNew = this.renderNew.bind(this);
@@ -34,12 +27,32 @@ class cloudformationTemplates extends React.Component {
         // this.fileChangedHandler = this.fileChangedHandler.bind(this);
         // this.renderParamSelector = this.renderParamSelector.bind(this)
         // this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
-
+        this.deleteRow = this.deleteRow.bind(this);
+        this.updateRow = this.updateRow.bind(this);
+        this.onRowAdd = this.onRowAdd.bind(this);
     }
 
-    deleteRow(rowData) {
-        return axiosConfigurations.post('/deleteTemplate', { id: rowData.id })
-            .then(data => this.props.fetchTemplates().then(d => this.setState({ openModal: false })))
+    deleteRow(rowData, tableName) {
+        const { keys } = this.props;
+        return axiosConfigurations.post('/deleteItem', { id: rowData.id, tableName })
+            .then(data => this.props.fetchItems(tableName, keys))
+            .catch(e => { alert('Delete error, please try again'); return 'error' })
+    }
+
+    updateRow(newData, oldData, tableName) {
+        newData.id = oldData.id;
+        const { keys } = this.props;
+        return axiosConfigurations.put('/putItem', { item: newData, tableName })
+            .then(data => this.props.fetchItems(tableName, keys))
+            .catch(e => { alert('Delete error, please try again'); return 'error' })
+    }
+
+    onRowAdd(newData, tableName) {
+        console.log(newData, tableName)
+        newData.id = parseInt(newData.id)
+        const { keys } = this.props;
+        return axiosConfigurations.put('/putItem', { item: newData, tableName })
+            .then(data => this.props.fetchItems(tableName, keys))
             .catch(e => { alert('Delete error, please try again'); return 'error' })
     }
 
@@ -182,40 +195,34 @@ class cloudformationTemplates extends React.Component {
             .catch(e => console.log(e))
     }
 
-
-
     render() {
         const { state, setState } = this;
         const { openModal } = state;
-        const { selectedTable } = this.props;
+        const { selectedTable, keys, data } = this.props;
         return (
             selectedTable ? <div className='tabla-material'>
                 <MaterialTable
                     title={selectedTable}
-                    columns={state.columns}
-                    data={state.data}
+                    columns={keys.map(key => {
+                        let obj = { title: key, field: key }
+                        if (key == "id") obj.type = 'numeric';
+                        console.log(obj)
+                        return obj;
+                    })}
+                    data={data}
                     actions={[
-                        // ROW ACTIONS
-                        {
-                            icon: 'play_circle_filled',
-                            tooltip: 'Execute template',
-                            onClick: this.clickExecuteTemplate,
-                        },
-                        {
-                            icon: 'edit',
-                            tooltip: 'Edit template',
-                            onClick: this.clickViewRow,
-                        },
                         //FREE ACTIONS
-                        {
-                            icon: 'add_box',
-                            tooltip: 'Add template',
-                            onClick: this.clickAddTemplate,
-                            isFreeAction: true
-                        },
+                        // {
+                        //     icon: 'add_box',
+                        //     tooltip: 'Add item',
+                        //     onClick: this.clickAddItem,
+                        //     isFreeAction: true
+                        // },
                     ]}
                     editable={{
-                        onRowDelete: oldData => this.deleteRow(oldData)
+                        onRowDelete: oldData => this.deleteRow(oldData, selectedTable),
+                        onRowUpdate: (newData, oldData) => this.updateRow(newData, oldData, selectedTable),
+                        onRowAdd: (newData) => this.onRowAdd(newData, selectedTable),
                     }}
                 />
                 <Modal
