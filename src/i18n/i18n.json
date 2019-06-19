@@ -978,7 +978,9 @@
     "DESIRED_CAPACITY": "Desired Capacity",
     "ACTAUAL_DESIRED_CAPACITY": "Actual desired capacity",
     "APPSTREAM_SELECTED": "Appstream fleet selected",
-    "ACTAUAL_INSTANCE_TYPE": "Actual instance type"
+    "ACTAUAL_INSTANCE_TYPE": "Actual instance type",
+    "MENU_CLOUDFORMATION_TEMPLATES": "Cloudformation Templates",
+    "MENU_CONFIGURATIONS": "Configurations"
   },
   "es": {
     "LOG_IN": "Ingresar",
@@ -1883,7 +1885,9 @@
     "DESIRED_CAPACITY": "Capacidad deseada",
     "ACTAUAL_DESIRED_CAPACITY": "Capacidad deseada actual",
     "APPSTREAM_SELECTED": "Flota de appstream seleccionada",
-    "ACTAUAL_INSTANCE_TYPE": "Tipo de instancia"
+    "ACTAUAL_INSTANCE_TYPE": "Tipo de instancia",
+    "MENU_CLOUDFORMATION_TEMPLATES": "Plantillas de Cloudformation",
+    "MENU_CONFIGURATIONS": "Configuraciones"
   },
   "PROGRAM_VERSION": "Version 1.18.8.24"
 }
