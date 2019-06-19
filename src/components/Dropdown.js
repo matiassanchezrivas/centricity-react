@@ -50,7 +50,7 @@ const dropdown = [
     },
     {
         'text': 'LOG_OUT',
-        'click': '$rootScope.$broadcast("logout")'
+        'logout': true
     }
 ];
 
@@ -66,12 +66,12 @@ class Dropdown extends Component {
     }
 
     onClick(option) {
-        console.log('onClick', option)
         const { changeLanguaje } = this.props;
-        const { link, languageChange } = option;
+        const { link, languageChange, logout } = option;
 
         if (link) window.location.replace(link);
         if (languageChange) { changeLanguaje(languageChange); console.log('changeLanguaje', languageChange) }
+        if (logout) { localStorage.removeItem('cloudpoxee.session'); window.location.replace('/#/login') }
     }
 
     render() {
