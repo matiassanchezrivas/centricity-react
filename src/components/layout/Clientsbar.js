@@ -6,7 +6,6 @@ import I18n from '../../config/i18n'
 import { fetchClients, fetchClient } from '../../actions-creator/client'
 import { connect } from 'react-redux';
 
-I18n.setLanguage('en');
 
 const hardcodedRoles = ['CH_SYSTEM_ADMIN']
 
@@ -51,8 +50,9 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { toggleClientsBar } = this.props;
+    const { toggleClientsBar, languaje } = this.props;
     const { filteredClients } = this.state;
+    I18n.setLanguage(languaje);
     return (
       <div className="aside" tabindex="-1" role="dialog">
         <div className="aside-dialog">
@@ -94,6 +94,7 @@ const mapStateToProps = function (state) {
   return {
     clients: state.clients.clients,
     currentClient: state.clients.currentClient,
+    languaje: state.settings.currentLanguaje,
   };
 }
 

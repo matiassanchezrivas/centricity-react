@@ -3,10 +3,9 @@ import _ from 'lodash'
 // import config_menu from '../../config/menu'
 // import config from '../../config/config'
 import I18n from '../config/i18n'
-// // import { fetchClients, fetchClient } from '../../actions-creator/client'
-// // import { connect } from 'react-redux';
+import { changeLanguaje } from '../actions-creator/settings'
+import { connect } from 'react-redux';
 
-I18n.setLanguage('en');
 
 const dropdown = [
     {
@@ -25,11 +24,11 @@ const dropdown = [
     },
     {
         'text': 'English',
-        'languageChange': "en_US"
+        'languageChange': "en"
     },
     {
         'text': 'Español',
-        'languageChange': "es_ES"
+        'languageChange': "es"
     },
     {
         'divider': true
@@ -60,18 +59,30 @@ class Dropdown extends Component {
         super(props)
         this.state = {
         }
+        this.onClick = this.onClick.bind(this);
     }
 
     componentDidMount() {
     }
 
+    onClick(option) {
+        console.log('onClick', option)
+        const { changeLanguaje } = this.props;
+        const { link, languageChange } = option;
+
+        if (link) window.location.replace(link);
+        if (languageChange) { changeLanguaje(languageChange); console.log('changeLanguaje', languageChange) }
+    }
+
     render() {
-        const { toggleClientsBar } = this.props;
+        const { toggleClientsBar, languaje } = this.props;
+        I18n.setLanguage(languaje);
+        console.log('languaje', languaje)
         return (
             <ul tabindex="-1" class="dropdown-menu ng-scope am-flip-x bottom-right" role="menu" ng-show="content &amp;&amp; content.length" style={{ top: 62, left: 85, display: 'block', visibility: 'visible' }}>
                 {dropdown.map(option =>
                     (option.divider) ? <li role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope divider" ></li> :
-                        <li onClick={option.link ? () => window.location.replace(option.link) : null} role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope" > <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider &amp;&amp; item.click" ng-click="$eval(item.click);$hide()" ng-bind-html="item.text" class="ng-binding ng-scope">{I18n.get((option.text))}
+                        <li onClick={() => this.onClick(option)} role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope" > <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider &amp;&amp; item.click" ng-click="$eval(item.click);$hide()" ng-bind-html="item.text" class="ng-binding ng-scope">{I18n.get((option.text))}
                         </a></li>
                 )}
             </ul>
@@ -79,5 +90,18 @@ class Dropdown extends Component {
     }
 }
 
+const mapDispatchToProps = function (dispatch) {
+    return (
+        {
+            changeLanguaje: (languaje) => dispatch(changeLanguaje(languaje)),
+        }
+    )
+}
 
-export default Dropdown;
+const mapStateToProps = function (state) {
+    return {
+        languaje: state.settings.currentLanguaje,
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dropdown);

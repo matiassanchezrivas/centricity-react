@@ -4,7 +4,6 @@ import logoHeaderSmall from '../../images/logo-header-small.png'
 import Dropdown from '../../components/Dropdown'
 import { connect } from 'react-redux';
 import I18n from '../../config/i18n'
-I18n.setLanguage('en');
 
 class Header extends Component {
   constructor(props) {
@@ -15,8 +14,9 @@ class Header extends Component {
   }
 
   render() {
-    const { toggleClientsBar, toggleOptionsBar, menuOpen, currentUser, currentClient, loading, loadingBlock } = this.props
+    const { toggleClientsBar, toggleOptionsBar, menuOpen, currentUser, currentClient, loading, loadingBlock, languaje } = this.props
     const { dropdownMenu } = this.state;
+    I18n.setLanguage(languaje);
     const isAuthorized = () => true
     return (
       <div className="topbar">
@@ -25,8 +25,8 @@ class Header extends Component {
           <span className="lines"></span>
         </button>
         {/* Logo */}
-        <img className="logo" src={logoHeader} onClick={()=> window.location.replace('/#/dashboard') } />
-        <img className="logo-small" src={logoHeaderSmall} onClick={()=> window.location.replace('/#/dashboard') } />
+        <img className="logo" src={logoHeader} onClick={() => window.location.replace('/#/dashboard')} />
+        <img className="logo-small" src={logoHeaderSmall} onClick={() => window.location.replace('/#/dashboard')} />
         {/* Loading */}
         {loading && !loadingBlock && <div className='active animated fadeIn'></div>}
         {/* User bar */}
@@ -70,7 +70,8 @@ const mapDispatchToProps = function (dispatch) {
 const mapStateToProps = function (state) {
   return {
     currentUser: state.users.currentUser,
-    currentClient: state.clients.currentClient
+    currentClient: state.clients.currentClient,
+    languaje: state.settings.currentLanguaje,
   };
 }
 

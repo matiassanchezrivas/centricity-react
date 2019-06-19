@@ -11,3 +11,6 @@ export const RECEIVE_CLIENTS = 'RECEIVE_CLIENTS';
 //configurations
 export const RECEIVE_ALL_TABLES = 'RECEIVE_ALL_TABLES';
 export const RECEIVE_ITEMS = 'RECEIVE_ITEMS'
+
+//languaje
+export const RECEIVE_LANGUAJE = 'RECEIVE_LANGUAJE'

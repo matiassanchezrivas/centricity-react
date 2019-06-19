@@ -7,7 +7,6 @@ import config from '../../config/config'
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 import I18n from '../../config/i18n'
-I18n.setLanguage('en');
 
 const menu = [
   { name: "MENU_ADMIN_DASHBOARD", class: '', ref: "app.admin-dashboard", roles: [roles.CH_SYSTEM_ADMIN] },
@@ -72,6 +71,8 @@ class Sidebar extends Component {
 
   renderMenu(menu, roles) {
     const { toggleOptionsBar } = this.props;
+    const { languaje } = this.props;
+    I18n.setLanguage(languaje);
     return (
       <ul>
         {menu.map(item => {
@@ -114,7 +115,8 @@ const mapDispatchToProps = function (dispatch) {
 const mapStateToProps = function (state) {
   return {
     currentUser: state.users.currentUser,
-    currentClient: null
+    currentClient: null,
+    languaje: state.settings.currentLanguaje,
   };
 }
 
