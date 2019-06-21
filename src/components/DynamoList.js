@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function CheckboxList(props) {
     const classes = useStyles();
-    const [checked, setChecked] = React.useState([0]);
+    const [checked, setChecked] = React.useState([]);
 
     const handleToggle = value => () => {
         const currentIndex = checked.indexOf(value);
@@ -34,23 +34,23 @@ export default function CheckboxList(props) {
         setChecked(newChecked);
     };
     const { items } = props;
-    console.log(items)
     return (
         <List className={classes.root}>
-            {[items].map((item, index) => {
-                const labelId = `checkbox-list-label-${index}`;
+            {items.map(value => {
+                const labelId = `checkbox-list-label-${value}`;
+
                 return (
-                    <ListItem key={index} role={undefined} dense button onClick={handleToggle(index)}>
+                    <ListItem key={value} role={undefined} dense button onClick={handleToggle(value)}>
                         <ListItemIcon>
                             <Checkbox
                                 edge="start"
-                                checked={checked.indexOf(item) !== -1}
+                                checked={checked.indexOf(value) !== -1}
                                 tabIndex={-1}
                                 disableRipple
                                 inputProps={{ 'aria-labelledby': labelId }}
                             />
                         </ListItemIcon>
-                        <ListItemText id={labelId} primary={item} />
+                        <ListItemText id={labelId} primary={value} />
                         {/* <ListItemSecondaryAction>
                             <IconButton edge="end" aria-label="Comments">
                                 <CommentIcon />
