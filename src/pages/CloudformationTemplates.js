@@ -298,7 +298,7 @@ class cloudformationTemplates extends React.Component {
 
                     <MaterialTable
                         title={`Execution logs from ${logs.stackName}`}
-                        columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'Timestamp'].map(a => ({ field: a, title: a }))}
+                        columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason','Timestamp'].map(a => ({ field: a, title: a }))}
                         data={stackEvents}
                         actions={[
                             //FREE ACTIONS
