@@ -18,8 +18,8 @@ export const fetchTemplates = () => dispatch => {
 }
 
 export const fetchStackEvents = (payload) => dispatch => {
-    const { stackName, cloud_account_id } = payload;
-    return axiosCloudformation.post(`/describeStackEvents`, { stackName, cloud_account_id })
+    const { stackName, cloud_account_id, date } = payload;
+    return axiosCloudformation.post(`/describeStackEvents`, { stackName, cloud_account_id, date })
         .then(res => res.data)
         .then(stackEvents => dispatch(receiveStackEvents(stackEvents)))
 }

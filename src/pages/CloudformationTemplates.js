@@ -66,19 +66,19 @@ class cloudformationTemplates extends React.Component {
 
     executeTemplate() {
         const { id, selectedAccount, Parameters, stackName } = this.state.executeRow;
-
+        const date = (new Date()).getTime();
         console.log(id, selectedAccount)
         axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters, stackName })
             .then(response => {
-                this.props.fetchStackEvents({ stackName, cloud_account_id: selectedAccount })
+                this.props.fetchStackEvents({ stackName, cloud_account_id: selectedAccount, date })
                     .then(() => this.setState({
                         logs: {
                             stackName,
                             cloud_account_id: selectedAccount,
+                            date
                         },
                         modal: 'logs'
                     }))
-
                 return response.data
             })
             .catch(e => { console.log(e) })
@@ -86,10 +86,10 @@ class cloudformationTemplates extends React.Component {
 
     updateLogs() {
         if (!this.state.logs) return
-        const { stackName, cloud_account_id } = this.state.logs;
+        const { stackName, cloud_account_id, date } = this.state.logs;
         if (!stackName || !cloud_account_id) return
 
-        this.props.fetchStackEvents({ stackName, cloud_account_id })
+        this.props.fetchStackEvents({ stackName, cloud_account_id, date })
             .then(() => this.setState({
                 logs: {
                     stackName,
