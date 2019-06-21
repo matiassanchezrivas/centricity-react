@@ -63,12 +63,12 @@ class cloudformationTemplates extends React.Component {
     }
 
     executeTemplate() {
-        const { id, selectedAccount, Parameters } = this.state.executeRow;
+        const { id, selectedAccount, Parameters, stackName } = this.state.executeRow;
 
         console.log(id, selectedAccount)
-        axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters })
+        axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters, stackName })
             .then(response => response.data)
-            .catch(e => { })
+            .catch(e => {console.log(e)})
     }
 
     fileChangedHandler(e) {
@@ -350,15 +350,15 @@ class cloudformationTemplates extends React.Component {
           </Typography>
                 <form noValidate autoComplete="off">
                     <Grid item xs={12}>
-                        {/* <TextField
-                            id="name"
-                            label="Name"
+                        <TextField
+                            id="stackName"
+                            label="StackName"
                             style={{ width: '100%' }}
                             // className={classes.textField}
-                            value={viewRow.name}
-                            onChange={(e) => this.handleChange('name', e)}
+                            value={executeRow.stackName}
+                            onChange={(e) => this.handleChange('stackName', e)}
                             margin="normal"
-                        /> */}
+                        />
                     </Grid>
                     <FormControl style={{ width: '100%' }}>
                         <InputLabel htmlFor="ca-simple">Cloud account</InputLabel>
@@ -373,6 +373,8 @@ class cloudformationTemplates extends React.Component {
                             {executeRow.cloudAccounts.map(ca => <MenuItem value={ca.id}>{ca.name}</MenuItem>)}
                         </Select>
                     </FormControl>
+
+
                     <Typography variant="h6" id="modal-title">
                         Parameters
           </Typography>
