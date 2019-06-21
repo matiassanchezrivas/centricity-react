@@ -20,6 +20,7 @@ export const fetchTables = () => dispatch => {
 }
 
 export const fetchItems = (selectedTable, keys) => dispatch => {
+    if(!selectedTable || !keys.length) return dispatch(receiveItems([], ''))
     return axiosConfigurations.post(`/scanTable`, { tableName: selectedTable, attributeNames: keys, conditions: [], pagination: { limit: 100 } })
         .then(res => res.data)
         .then(items => dispatch(receiveItems(items, selectedTable)))

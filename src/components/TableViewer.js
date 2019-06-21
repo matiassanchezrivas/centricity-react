@@ -54,17 +54,12 @@ class TableViewer extends React.Component {
     render() {
         const { state, setState } = this;
         const { openModal } = state;
-        const { selectedTable, keys, data } = this.props;
+        const { selectedTable, keys, data, columns } = this.props;
         return (
             selectedTable ? <div className='tabla-material'>
                 <MaterialTable
                     title={selectedTable}
-                    columns={keys.map(key => {
-                        let obj = { title: key, field: key }
-                        if (key == "id") obj.type = 'numeric';
-                        console.log(obj)
-                        return obj;
-                    })}
+                    columns={columns}
                     data={data}
                     editable={{
                         onRowDelete: oldData => this.deleteRow(oldData, selectedTable),
