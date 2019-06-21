@@ -3,6 +3,7 @@ export const RECEIVE_USER = 'RECEIVE_USER';
 
 //templates
 export const RECEIVE_TEMPLATES = 'RECEIVE_TEMPLATES';
+export const RECEIVE_STACK_EVENTS = 'RECEIVE_STACK_EVENTS';
 
 //clients
 export const RECEIVE_CLIENT = 'RECEIVE_CLIENT';

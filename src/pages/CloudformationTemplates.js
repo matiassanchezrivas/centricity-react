@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
-import { fetchTemplates } from '../actions-creator/templates'
+import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
 import { FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
 import { axiosCloudformation } from '../config/axios'
@@ -15,6 +15,7 @@ class cloudformationTemplates extends React.Component {
         this.state = {
             newRow: {},
             viewRow: {},
+            logs: {},
             modal: 'new',
             data: this.props.templates,
             columns: [
@@ -23,9 +24,11 @@ class cloudformationTemplates extends React.Component {
                 { title: 'Approved by', field: 'approved_by' },
                 { title: 'Description', field: 'description' },
             ],
+
         };
         this.reset = this.reset.bind(this);
         this.renderNew = this.renderNew.bind(this);
+        this.updateLogs = this.updateLogs.bind(this);
         this.renderView = this.renderView.bind(this);
         this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -38,7 +41,6 @@ class cloudformationTemplates extends React.Component {
         this.fileChangedHandler = this.fileChangedHandler.bind(this);
         this.renderParamSelector = this.renderParamSelector.bind(this)
         this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
-
     }
 
     deleteRow(rowData) {
@@ -67,8 +69,33 @@ class cloudformationTemplates extends React.Component {
 
         console.log(id, selectedAccount)
         axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters, stackName })
-            .then(response => response.data)
-            .catch(e => {console.log(e)})
+            .then(response => {
+                this.props.fetchStackEvents({ stackName, cloud_account_id: selectedAccount })
+                    .then(() => this.setState({
+                        logs: {
+                            stackName,
+                            cloud_account_id: selectedAccount,
+                        },
+                        modal: 'logs'
+                    }))
+
+                return response.data
+            })
+            .catch(e => { console.log(e) })
+    }
+
+    updateLogs() {
+        if (!this.state.logs) return
+        const { stackName, cloud_account_id } = this.state.logs;
+        if (!stackName || !cloud_account_id) return
+
+        this.props.fetchStackEvents({ stackName, cloud_account_id })
+            .then(() => this.setState({
+                logs: {
+                    stackName,
+                    cloud_account_id,
+                }
+            }))
     }
 
     fileChangedHandler(e) {
@@ -108,6 +135,8 @@ class cloudformationTemplates extends React.Component {
                 return this.renderNew();
             case 'execute':
                 return this.renderExecute();
+            case 'logs':
+                return this.renderLogs();
             default:
                 return this.renderView();
         }
@@ -258,6 +287,37 @@ class cloudformationTemplates extends React.Component {
             <Typography variant="subtitle1" id="simple-modal-description">
                 Description: {object.Description}
             </Typography></div>)
+    }
+
+    renderLogs() {
+        const { logs } = this.state;
+        const { stackEvents } = this.props;
+        return (
+            <Container>
+                <form noValidate autoComplete="off">
+
+                    <MaterialTable
+                        title={`Execution logs from ${logs.stackName}`}
+                        columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'Timestamp'].map(a => ({ field: a, title: a }))}
+                        data={stackEvents}
+                        actions={[
+                            //FREE ACTIONS
+                            {
+                                icon: 'update',
+                                tooltip: 'Force update',
+                                onClick: this.updateLogs,
+                                isFreeAction: true
+                            },
+                        ]}
+                    />
+
+                    <Grid item xs={12}>
+                        <Button onClick={this.handleCloseModal}>
+                            Close
+                    </Button>
+                    </Grid>
+                </form>
+            </Container>)
     }
 
     renderView() {
@@ -528,13 +588,15 @@ const mapDispatchToProps = function (dispatch) {
     return (
         {
             fetchTemplates: () => dispatch(fetchTemplates()),
+            fetchStackEvents: (payload) => dispatch(fetchStackEvents(payload)),
         }
     )
 }
 
 const mapStateToProps = function (state) {
     return {
-        templates: state.templates.templates
+        templates: state.templates.templates,
+        stackEvents: state.templates.stackEvents,
     };
 }
 
