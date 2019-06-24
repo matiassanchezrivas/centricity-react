@@ -13,15 +13,15 @@ const receiveItems = (items, selectedTable) => ({
 
 })
 
-export const fetchTables = () => dispatch => {
-    return axiosConfigurations.get(`/listTables`)
+export const fetchTables = (customer_id, cloud_account_id) => dispatch => {
+    return axiosConfigurations.post(`/listTables`, { customer_id, cloud_account_id })
         .then(res => res.data)
         .then(tables => dispatch(receiveTable(tables)))
 }
 
-export const fetchItems = (selectedTable, keys) => dispatch => {
-    if(!selectedTable || !keys.length) return dispatch(receiveItems([], ''))
-    return axiosConfigurations.post(`/scanTable`, { tableName: selectedTable, attributeNames: keys, conditions: [], pagination: { limit: 100 } })
+export const fetchItems = (customer_id, cloud_account_id, selectedTable, keys) => dispatch => {
+    if (!selectedTable) return dispatch(receiveItems([], ''))
+    return axiosConfigurations.post(`/scanTable`, { customer_id, cloud_account_id, tableName: selectedTable, attributeNames: keys, conditions: [], pagination: { limit: 100 } })
         .then(res => res.data)
         .then(items => dispatch(receiveItems(items, selectedTable)))
 }

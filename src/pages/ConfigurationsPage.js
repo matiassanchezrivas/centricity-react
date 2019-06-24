@@ -31,21 +31,21 @@ class Layout extends Component {
         const { selectedAccount } = this.state;
         this.setState({ [name]: value })
         if (name === 'selectedTable') {
-            console.log(this.state)
             const tableConfig = await axiosConfigurations.post('/getDynamoTableKeys', { customer_id: currentClient.id, cloud_account_id: selectedAccount, tableName: value })
                 .then(response => response.data)
                 .catch(e => { })
-
-
             let keys = tableConfig ? JSON.parse(tableConfig.keys) : []
-            this.props.fetchItems(value, keys.map(key => key.name));
+            this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, value, keys.map(k => k.name));
             this.setState({ keys })
-
+        } else if (name == 'selectedAccount') {
+            this.props.fetchTables(currentClient ? currentClient.id : null, value);
         }
     }
 
     async componentDidMount() {
-        this.props.fetchTables();
+        const { currentClient } = this.props;
+        const { selectedAccount } = this.state;
+        this.props.fetchTables(currentClient ? currentClient.id : null, selectedAccount);
         const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
             .then(response => response.data)
             .catch(e => { })
@@ -60,9 +60,8 @@ class Layout extends Component {
     }
 
     render() {
-        const { selectedTable, openModal, keys, cloudAccounts, selectedAccount } = this.state;
+        const { selectedTable, openModal, keys, cloudAccounts, selectedAccount, currentClient } = this.state;
         const { all_tables, items, fetchItems } = this.props;
-        console.log(keys)
         return (
             <div>
                 <Grid
@@ -113,6 +112,8 @@ class Layout extends Component {
                                 return { title: key.name, field: key.name, type: key.type == 'N' ? 'numeric' : 'string' }
                             })}
                             data={items ? items.Items : []}
+                            selectedAccount={selectedAccount}
+                            currentClient={currentClient}
                         />
                     </Grid>
                 </Grid>
@@ -133,8 +134,8 @@ class Layout extends Component {
 const mapDispatchToProps = function (dispatch) {
     return (
         {
-            fetchTables: () => dispatch(fetchTables()),
-            fetchItems: (tableName, attributeNames) => dispatch(fetchItems(tableName, attributeNames)),
+            fetchTables: (customer_id, cloud_account_id) => dispatch(fetchTables(customer_id, cloud_account_id)),
+            fetchItems: (customer_id, cloud_account_id, tableName, attributeNames) => dispatch(fetchItems(customer_id, cloud_account_id, tableName, attributeNames)),
         }
     )
 }

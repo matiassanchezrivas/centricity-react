@@ -19,26 +19,28 @@ class TableViewer extends React.Component {
     }
 
     deleteRow(rowData, tableName) {
-        const { keys } = this.props;
-        return axiosConfigurations.post('/deleteItem', { id: rowData.id, tableName })
-            .then(data => this.props.fetchItems(tableName, keys))
+        const { keys, currentClient, selectedAccount } = this.props;
+
+        return axiosConfigurations.post('/deleteItem', { customer_id: currentClient ? currentClient.id : null, cloud_account_id: selectedAccount, id: rowData.id, tableName })
+            .then(data => this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, tableName, keys))
             .catch(e => { alert('Delete error, please try again'); return 'error' })
     }
 
     updateRow(newData, oldData, tableName) {
+        const { currentClient, selectedAccount, keys } = this.props;
         newData.id = oldData.id;
-        const { keys } = this.props;
-        return axiosConfigurations.put('/putItem', { item: newData, tableName })
-            .then(data => this.props.fetchItems(tableName, keys))
+
+        return axiosConfigurations.put('/putItem', { customer_id: currentClient ? currentClient.id : null, cloud_account_id: selectedAccount, item: newData, tableName })
+            .then(data => this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, tableName, keys))
             .catch(e => { alert('Delete error, please try again'); return 'error' })
     }
 
     onRowAdd(newData, tableName) {
+        const { currentClient, selectedAccount, keys } = this.props;
         console.log(newData, tableName)
         newData.id = parseInt(newData.id)
-        const { keys } = this.props;
-        return axiosConfigurations.put('/putItem', { item: newData, tableName })
-            .then(data => this.props.fetchItems(tableName, keys))
+        return axiosConfigurations.put('/putItem', { customer_id: currentClient ? currentClient.id : null, cloud_account_id: selectedAccount, item: newData, tableName })
+            .then(data => this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, tableName, keys))
             .catch(e => { alert('Delete error, please try again'); return 'error' })
     }
 
