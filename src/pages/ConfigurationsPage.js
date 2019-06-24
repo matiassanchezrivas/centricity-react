@@ -4,16 +4,20 @@ import { fetchUser } from '../actions-creator/user'
 import { connect } from 'react-redux';
 import TableViewer from '../components/TableViewer'
 import { fetchTables, fetchItems } from '../actions-creator/configurations'
-import { FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, IconButton, TextField, Button, Typography, Grid, Divider, FormControlLabel, Switch, Input, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '../components/Modal'
 import DynamoConfiguration from '../components/DynamoModal'
 import { axiosCloudformation, axiosConfigurations } from '../config/axios'
+import DeleteIcon from '@material-ui/icons/Delete';
 
-class Layout extends Component {
+class ConfigurationsPage extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            newTable: {
+                keys: [{ name: 'id', type: 'Number', primaryKey: true }]
+            },
             openModal: false,
             links: [],
             loading: true,
@@ -21,8 +25,12 @@ class Layout extends Component {
             keys: []
         }
 
-        this.handleChange = this.handleChange.bind(this)
-        this.handleCloseModal = this.handleCloseModal.bind(this)
+        this.addKey = this.addKey.bind(this);
+        this.switchModal = this.switchModal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.createTableClick = this.createTableClick.bind(this);
+        this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.renderCreateTable = this.renderCreateTable.bind(this)
     }
 
     async handleChange(e) {
@@ -42,6 +50,21 @@ class Layout extends Component {
         }
     }
 
+    handleChangeInside(e, obj, type, i) {
+        const { name, value } = e.target;
+        console.log(obj, type, i, name, value)
+        if (!type) {
+            this.setState({
+                [obj]: { ...this.state[obj], [e.target.name]: [e.target.value] }
+            })
+        } else {
+            console.log(obj, type, i)
+            this.setState({
+                [obj]: { ...this.state[obj], keys: this.state[obj].keys.map((k, index) => (i === index) ? { ...k, [name]: value } : k) }
+            })
+        }
+    }
+
     async componentDidMount() {
         const { currentClient } = this.props;
         const { selectedAccount } = this.state;
@@ -57,6 +80,101 @@ class Layout extends Component {
 
     handleCloseModal() {
         this.setState({ openModal: false })
+    }
+
+    addKey() {
+        this.setState({
+            newTable: { ...this.state.newTable, keys: [...this.state.newTable.keys, { name: '', type: 'String' }] }
+        })
+    }
+
+    createTableClick() {
+        console.log('clicks')
+        this.setState({
+            openModal: true,
+            modal: 'createTable'
+        })
+    }
+
+    switchModal() {
+        const { all_tables } = this.props;
+        switch (this.state.modal) {
+            case 'createTable':
+                return this.renderCreateTable();
+            default:
+                return <DynamoConfiguration
+                    tables={all_tables}
+                />
+        }
+    }
+
+    renderCreateTable() {
+        const { newTable } = this.state;
+        return (<div>
+            <Typography variant="h6">
+                Create table
+            </Typography>
+            <Typography variant="subtitle1" id="simple-modal-description">
+                Define table name and at least the primary key
+            </Typography>
+
+            <Grid item xs={12}>
+                <TextField
+                    id="tableName"
+                    label="Name"
+                    style={{ width: '100%' }}
+                    // className={classes.textField}
+                    value={newTable.name}
+                    onChange={(e) => this.handleChangeInside(e, 'newTable')}
+                    margin="normal"
+                />
+            </Grid>
+            {newTable.keys.map((k, i) => {
+                return <Grid container>
+                    <Grid item xs={6}>
+                        <FormControl style={{ width: '100%' }}>
+                            <TextField
+                                label="Name"
+                                name='name'
+                                value={newTable.keys[i].name}
+                                onChange={(e) => this.handleChangeInside(e, 'newTable', 'name', i)}
+                                margin="normal"
+                            />
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <FormControl style={{ width: '100%' }}>
+                            <TextField
+                                select
+                                label="Type"
+                                name='type'
+                                value={newTable.keys[i].type}
+                                onChange={(e) => this.handleChangeInside(e, 'newTable', 'key', i)}
+                                margin="normal"
+                            >
+                                {['String', 'Number', 'Binary'].map((option, i) => <MenuItem key={i} value={option}>{option}</MenuItem>)}
+                            </TextField>
+                        </FormControl>
+                    </Grid>
+
+                    {i !== 0 && <IconButton aria-label="Delete">
+                        <DeleteIcon />
+                    </IconButton>}
+                    <Divider />
+                </Grid>
+
+            })}
+            <Button
+                onClick={this.addKey}
+                style={{ width: '100%' }}
+                variant="contained"
+            >addKey</Button>
+            <Button
+                variant="contained" color="primary"
+                onClick={this.confirmCreateTable}
+                style={{ width: '100%' }}
+            >Confirm</Button>
+        </div>)
     }
 
     render() {
@@ -116,15 +234,18 @@ class Layout extends Component {
                             currentClient={currentClient}
                         />
                     </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            onClick={this.createTableClick}
+                        >Create table</Button>
+                    </Grid>
                 </Grid>
                 <Modal
                     open={openModal}
                     handleClose={this.handleCloseModal}
                     data={this.transformDynamo}
                 >
-                    <DynamoConfiguration
-                        tables={all_tables}
-                    />
+                    {this.switchModal()}
                 </Modal>
             </div>
         )
@@ -148,4 +269,4 @@ const mapStateToProps = function (state) {
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout);
+export default connect(mapStateToProps, mapDispatchToProps)(ConfigurationsPage);
