@@ -124,7 +124,7 @@ class Layout extends Component {
                                     toggleClientsBar={this.toggleClientsBar}
                                     menuOpen={optionsMenuOpen}
                                 />
-                                <div className="state-content" onClick={() => console.log('asd')}>
+                                <div className="state-content" >
                                     <div className="cp-content ng-scope">
                                         {this.props.children}
                                     </div>
