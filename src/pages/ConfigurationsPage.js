@@ -30,7 +30,8 @@ class ConfigurationsPage extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.createTableClick = this.createTableClick.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
-        this.renderCreateTable = this.renderCreateTable.bind(this)
+        this.renderCreateTable = this.renderCreateTable.bind(this);
+        this.confirmCreateTable = this.confirmCreateTable.bind(this);
     }
 
     async handleChange(e) {
@@ -55,7 +56,7 @@ class ConfigurationsPage extends Component {
         console.log(obj, type, i, name, value)
         if (!type) {
             this.setState({
-                [obj]: { ...this.state[obj], [e.target.name]: [e.target.value] }
+                [obj]: { ...this.state[obj], [e.target.name]: e.target.value }
             })
         } else {
             console.log(obj, type, i)
@@ -63,13 +64,14 @@ class ConfigurationsPage extends Component {
                 [obj]: { ...this.state[obj], keys: this.state[obj].keys.map((k, index) => (i === index) ? { ...k, [name]: value } : k) }
             })
         }
+        console.log(this.state)
     }
 
     async componentDidMount() {
         const { currentClient } = this.props;
         const { selectedAccount } = this.state;
         this.props.fetchTables(currentClient ? currentClient.id : null, selectedAccount);
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id }) //TODO replace customer_id
             .then(response => response.data)
             .catch(e => { })
 
@@ -108,6 +110,19 @@ class ConfigurationsPage extends Component {
         }
     }
 
+    confirmCreateTable() {
+        const { selectedAccount, newTable } = this.state;
+        const { currentClient } = this.props;
+        const { keys } = newTable;
+        axiosConfigurations.post('/createTable', {
+            customer_id: currentClient ? currentClient.id : null,
+            cloud_account_id: selectedAccount,
+            tableName: newTable.name,
+            keys: JSON.stringify(keys)
+        })
+
+    }
+
     renderCreateTable() {
         const { newTable } = this.state;
         return (<div>
@@ -124,12 +139,13 @@ class ConfigurationsPage extends Component {
                     label="Name"
                     style={{ width: '100%' }}
                     // className={classes.textField}
+                    name='name'
                     value={newTable.name}
                     onChange={(e) => this.handleChangeInside(e, 'newTable')}
                     margin="normal"
                 />
             </Grid>
-            {newTable.keys.map((k, i) => {
+            {newTable && newTable.keys && newTable.keys.map((k, i) => {
                 return <Grid container>
                     <Grid item xs={6}>
                         <FormControl style={{ width: '100%' }}>
