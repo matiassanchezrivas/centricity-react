@@ -4,17 +4,19 @@ import { fetchUser } from '../actions-creator/user'
 import { connect } from 'react-redux';
 import TableViewer from '../components/TableViewer'
 import { fetchTables, fetchItems } from '../actions-creator/configurations'
-import { FormControl, InputLabel, Select, MenuItem, IconButton, TextField, Button, Typography, Grid, Divider, FormControlLabel, Switch, Input, Paper } from '@material-ui/core';
+import { FormControl, InputLabel, Select, MenuItem, IconButton, TextField, Button, Typography, Grid, Divider, FormControlLabel, Switch, Input, Paper, AppBar, Tabs, Tab } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '../components/Modal'
 import DynamoConfiguration from '../components/DynamoModal'
 import { axiosCloudformation, axiosConfigurations } from '../config/axios'
-import DeleteIcon from '@material-ui/icons/Delete';
+
+import CreateTable from '../components/configurations/createTable'
 
 class ConfigurationsPage extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            tab: 'create',
             newTable: {
                 keys: [{ name: 'id', type: 'Number', primaryKey: true }]
             },
@@ -26,11 +28,11 @@ class ConfigurationsPage extends Component {
         }
 
         this.addKey = this.addKey.bind(this);
+        this.deleteKey = this.deleteKey.bind(this);
         this.switchModal = this.switchModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.createTableClick = this.createTableClick.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
-        this.renderCreateTable = this.renderCreateTable.bind(this);
         this.confirmCreateTable = this.confirmCreateTable.bind(this);
     }
 
@@ -50,6 +52,8 @@ class ConfigurationsPage extends Component {
             this.props.fetchTables(currentClient ? currentClient.id : null, value);
         }
     }
+
+
 
     handleChangeInside(e, obj, type, i) {
         const { name, value } = e.target;
@@ -71,7 +75,7 @@ class ConfigurationsPage extends Component {
         const { currentClient } = this.props;
         const { selectedAccount } = this.state;
         this.props.fetchTables(currentClient ? currentClient.id : null, selectedAccount);
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id }) //TODO replace customer_id
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id })
             .then(response => response.data)
             .catch(e => { })
 
@@ -87,6 +91,14 @@ class ConfigurationsPage extends Component {
     addKey() {
         this.setState({
             newTable: { ...this.state.newTable, keys: [...this.state.newTable.keys, { name: '', type: 'String' }] }
+        })
+    }
+
+    deleteKey(i) {
+        let keysRemaining = this.state.newTable.keys;
+        keysRemaining.splice(i, 1);
+        this.setState({
+            newTable: { ...this.state.newTable, keys: keysRemaining }
         })
     }
 
@@ -113,7 +125,15 @@ class ConfigurationsPage extends Component {
     confirmCreateTable() {
         const { selectedAccount, newTable } = this.state;
         const { currentClient } = this.props;
-        const { keys } = newTable;
+        let { keys } = newTable;
+
+        keys.map(k => {
+            if (k.type === 'Number') k.type = 'N'
+            else if (k.type === 'Binary') k.type = 'B'
+            else k.type = 'S'
+            return k
+        })
+
         axiosConfigurations.post('/createTable', {
             customer_id: currentClient ? currentClient.id : null,
             cloud_account_id: selectedAccount,
@@ -123,78 +143,8 @@ class ConfigurationsPage extends Component {
 
     }
 
-    renderCreateTable() {
-        const { newTable } = this.state;
-        return (<div>
-            <Typography variant="h6">
-                Create table
-            </Typography>
-            <Typography variant="subtitle1" id="simple-modal-description">
-                Define table name and at least the primary key
-            </Typography>
-
-            <Grid item xs={12}>
-                <TextField
-                    id="tableName"
-                    label="Name"
-                    style={{ width: '100%' }}
-                    // className={classes.textField}
-                    name='name'
-                    value={newTable.name}
-                    onChange={(e) => this.handleChangeInside(e, 'newTable')}
-                    margin="normal"
-                />
-            </Grid>
-            {newTable && newTable.keys && newTable.keys.map((k, i) => {
-                return <Grid container>
-                    <Grid item xs={6}>
-                        <FormControl style={{ width: '100%' }}>
-                            <TextField
-                                label="Name"
-                                name='name'
-                                value={newTable.keys[i].name}
-                                onChange={(e) => this.handleChangeInside(e, 'newTable', 'name', i)}
-                                margin="normal"
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={4}>
-                        <FormControl style={{ width: '100%' }}>
-                            <TextField
-                                select
-                                label="Type"
-                                name='type'
-                                value={newTable.keys[i].type}
-                                onChange={(e) => this.handleChangeInside(e, 'newTable', 'key', i)}
-                                margin="normal"
-                            >
-                                {['String', 'Number', 'Binary'].map((option, i) => <MenuItem key={i} value={option}>{option}</MenuItem>)}
-                            </TextField>
-                        </FormControl>
-                    </Grid>
-
-                    {i !== 0 && <IconButton aria-label="Delete">
-                        <DeleteIcon />
-                    </IconButton>}
-                    <Divider />
-                </Grid>
-
-            })}
-            <Button
-                onClick={this.addKey}
-                style={{ width: '100%' }}
-                variant="contained"
-            >addKey</Button>
-            <Button
-                variant="contained" color="primary"
-                onClick={this.confirmCreateTable}
-                style={{ width: '100%' }}
-            >Confirm</Button>
-        </div>)
-    }
-
     render() {
-        const { selectedTable, openModal, keys, cloudAccounts, selectedAccount, currentClient } = this.state;
+        const { selectedTable, openModal, keys, cloudAccounts, selectedAccount, currentClient, tab } = this.state;
         const { all_tables, items, fetchItems } = this.props;
         return (
             <div>
@@ -226,6 +176,27 @@ class ConfigurationsPage extends Component {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12}>
+                        {selectedAccount && <div><Paper position="static">
+                            <Tabs value={tab} onChange={null} indicatorColor="primary"
+                                textColor="primary"
+                                centered>
+                                <Tab value={"select"} label="Select / edit tables" wrapped />
+                                <Tab value={"create"} label="Create new table" />
+                                <Tab value={"view"} label="View items" />
+                            </Tabs>
+                        </Paper>
+                            {tab === 'select' && <Typography>Item One</Typography>}
+                            {tab === 'create' && <CreateTable 
+                            newTable={this.state.newTable}
+                            addKey={this.addKey}
+                            deleteKey={this.deleteKey}
+                            handleChangeInside={this.handleChangeInside}
+                            confirmCreateTable={this.confirmCreateTable}
+                            />}
+                            {tab === 'view' && <Typography>Item Three</Typography>}
+                            </div>}
+                    </Grid>
+                    <Grid item xs={12}>
                         <FormControl style={{ width: '100%' }}>
                             <InputLabel >Select a table</InputLabel>
                             <Select
@@ -249,11 +220,6 @@ class ConfigurationsPage extends Component {
                             selectedAccount={selectedAccount}
                             currentClient={currentClient}
                         />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Button
-                            onClick={this.createTableClick}
-                        >Create table</Button>
                     </Grid>
                 </Grid>
                 <Modal
