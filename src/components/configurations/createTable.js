@@ -10,13 +10,9 @@ const useStyles = makeStyles({
 });
 
 export default function CenteredTabs(props) {
-    const classes = useStyles();
-    const [value, setValue] = React.useState(0);
+    // const classes = useStyles();
+    // const [value, setValue] = React.useState(0);
     const { newTable, addKey, deleteKey, handleChangeInside, confirmCreateTable } = props;
-
-    function handleChange(event, newValue) {
-        setValue(newValue);
-    }
 
     return (<div>
         <Typography variant="h6">
