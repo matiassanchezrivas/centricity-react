@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import queryString from 'query-string';
 import { fetchUser } from '../actions-creator/user'
 import { connect } from 'react-redux';
-import TableViewer from '../components/TableViewer'
 import { fetchTables, fetchItems } from '../actions-creator/configurations'
 import { FormControl, InputLabel, Select, MenuItem, IconButton, TextField, Button, Typography, Grid, Divider, FormControlLabel, Switch, Input, Paper, AppBar, Tabs, Tab } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
@@ -10,7 +9,8 @@ import Modal from '../components/Modal'
 import DynamoConfiguration from '../components/DynamoModal'
 import { axiosCloudformation, axiosConfigurations } from '../config/axios'
 
-import CreateTable from '../components/configurations/createTable'
+import CreateTable from '../components/configurations/CreateTable'
+import ViewItems from '../components/configurations/ViewItems'
 
 class ConfigurationsPage extends Component {
     constructor(props) {
@@ -26,11 +26,11 @@ class ConfigurationsPage extends Component {
             cloudAccounts: [],
             keys: []
         }
-
         this.addKey = this.addKey.bind(this);
         this.deleteKey = this.deleteKey.bind(this);
         this.switchModal = this.switchModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleChangeTab = this.handleChangeTab.bind(this)
         this.createTableClick = this.createTableClick.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.confirmCreateTable = this.confirmCreateTable.bind(this);
@@ -52,8 +52,6 @@ class ConfigurationsPage extends Component {
             this.props.fetchTables(currentClient ? currentClient.id : null, value);
         }
     }
-
-
 
     handleChangeInside(e, obj, type, i) {
         const { name, value } = e.target;
@@ -143,6 +141,12 @@ class ConfigurationsPage extends Component {
 
     }
 
+
+    handleChangeTab(event, tab) {
+        this.setState({ tab });
+    }
+
+
     render() {
         const { selectedTable, openModal, keys, cloudAccounts, selectedAccount, currentClient, tab } = this.state;
         const { all_tables, items, fetchItems } = this.props;
@@ -177,7 +181,7 @@ class ConfigurationsPage extends Component {
                     </Grid>
                     <Grid item xs={12}>
                         {selectedAccount && <div><Paper position="static">
-                            <Tabs value={tab} onChange={null} indicatorColor="primary"
+                            <Tabs value={tab} onChange={this.handleChangeTab} indicatorColor="primary"
                                 textColor="primary"
                                 centered>
                                 <Tab value={"select"} label="Select / edit tables" wrapped />
@@ -186,41 +190,19 @@ class ConfigurationsPage extends Component {
                             </Tabs>
                         </Paper>
                             {tab === 'select' && <Typography>Item One</Typography>}
-                            {tab === 'create' && <CreateTable 
-                            newTable={this.state.newTable}
-                            addKey={this.addKey}
-                            deleteKey={this.deleteKey}
-                            handleChangeInside={this.handleChangeInside}
-                            confirmCreateTable={this.confirmCreateTable}
+                            {tab === 'create' && <CreateTable
+                                newTable={this.state.newTable}
+                                addKey={this.addKey}
+                                deleteKey={this.deleteKey}
+                                handleChangeInside={this.handleChangeInside}
+                                confirmCreateTable={this.confirmCreateTable}
                             />}
-                            {tab === 'view' && <Typography>Item Three</Typography>}
-                            </div>}
+                            {tab === 'view' && <ViewItems
+                                selectedTable={selectedTable} all_tables={all_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange}
+                            />}
+                        </div>}
                     </Grid>
-                    <Grid item xs={12}>
-                        <FormControl style={{ width: '100%' }}>
-                            <InputLabel >Select a table</InputLabel>
-                            <Select
-                                name='selectedTable'
-                                value={selectedTable}
-                                onChange={(e) => this.handleChange(e)}
-                            >
-                                {all_tables.map((option, i) => <MenuItem key={i} value={option}>{option}</MenuItem>)}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TableViewer
-                            fetchItems={fetchItems}
-                            selectedTable={selectedTable}
-                            keys={keys.map(key => key.name)}
-                            columns={keys.map(key => {
-                                return { title: key.name, field: key.name, type: key.type == 'N' ? 'numeric' : 'string' }
-                            })}
-                            data={items ? items.Items : []}
-                            selectedAccount={selectedAccount}
-                            currentClient={currentClient}
-                        />
-                    </Grid>
+
                 </Grid>
                 <Modal
                     open={openModal}
