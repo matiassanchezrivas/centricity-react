@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import DynamoList from './DynamoList'
+import DynamoList from './configurations/DynamoList'
 
 class Tabla extends Component {
     constructor(props) {

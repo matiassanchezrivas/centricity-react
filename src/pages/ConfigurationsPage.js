@@ -2,15 +2,15 @@ import React, { Component } from 'react'
 import queryString from 'query-string';
 import { fetchUser } from '../actions-creator/user'
 import { connect } from 'react-redux';
-import { fetchTables, fetchItems } from '../actions-creator/configurations'
+import { fetchTables, fetchItems, fetchPersistedTables } from '../actions-creator/configurations'
 import { FormControl, InputLabel, Select, MenuItem, IconButton, TextField, Button, Typography, Grid, Divider, FormControlLabel, Switch, Input, Paper, AppBar, Tabs, Tab } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Modal from '../components/Modal'
-import DynamoConfiguration from '../components/DynamoModal'
 import { axiosCloudformation, axiosConfigurations } from '../config/axios'
 
 import CreateTable from '../components/configurations/CreateTable'
 import ViewItems from '../components/configurations/ViewItems'
+import SelectTables from '../components/configurations/SelectTables'
 
 class ConfigurationsPage extends Component {
     constructor(props) {
@@ -28,7 +28,6 @@ class ConfigurationsPage extends Component {
         }
         this.addKey = this.addKey.bind(this);
         this.deleteKey = this.deleteKey.bind(this);
-        this.switchModal = this.switchModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleChangeTab = this.handleChangeTab.bind(this)
         this.createTableClick = this.createTableClick.bind(this);
@@ -50,6 +49,7 @@ class ConfigurationsPage extends Component {
             this.setState({ keys })
         } else if (name == 'selectedAccount') {
             this.props.fetchTables(currentClient ? currentClient.id : null, value);
+            this.props.fetchPersistedTables(currentClient ? currentClient.id : null, value);
         }
     }
 
@@ -106,18 +106,6 @@ class ConfigurationsPage extends Component {
             openModal: true,
             modal: 'createTable'
         })
-    }
-
-    switchModal() {
-        const { all_tables } = this.props;
-        switch (this.state.modal) {
-            case 'createTable':
-                return this.renderCreateTable();
-            default:
-                return <DynamoConfiguration
-                    tables={all_tables}
-                />
-        }
     }
 
     confirmCreateTable() {
@@ -189,28 +177,15 @@ class ConfigurationsPage extends Component {
                                 <Tab value={"view"} label="View items" />
                             </Tabs>
                         </Paper>
-                            {tab === 'select' && <Typography>Item One</Typography>}
-                            {tab === 'create' && <CreateTable
-                                newTable={this.state.newTable}
-                                addKey={this.addKey}
-                                deleteKey={this.deleteKey}
-                                handleChangeInside={this.handleChangeInside}
-                                confirmCreateTable={this.confirmCreateTable}
-                            />}
-                            {tab === 'view' && <ViewItems
-                                selectedTable={selectedTable} all_tables={all_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange}
-                            />}
+                            {tab === 'select' && <Typography><SelectTables items={all_tables} /></Typography>}
+
+                            {tab === 'create' && <CreateTable newTable={this.state.newTable} addKey={this.addKey} deleteKey={this.deleteKey} handleChangeInside={this.handleChangeInside} confirmCreateTable={this.confirmCreateTable} />}
+
+                            {tab === 'view' && <ViewItems selectedTable={selectedTable} all_tables={all_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange} />}
                         </div>}
                     </Grid>
 
                 </Grid>
-                <Modal
-                    open={openModal}
-                    handleClose={this.handleCloseModal}
-                    data={this.transformDynamo}
-                >
-                    {this.switchModal()}
-                </Modal>
             </div>
         )
     }
@@ -221,6 +196,7 @@ const mapDispatchToProps = function (dispatch) {
         {
             fetchTables: (customer_id, cloud_account_id) => dispatch(fetchTables(customer_id, cloud_account_id)),
             fetchItems: (customer_id, cloud_account_id, tableName, attributeNames) => dispatch(fetchItems(customer_id, cloud_account_id, tableName, attributeNames)),
+            fetchPersistedTables: (customer_id, cloud_account_id) => dispatch(fetchPersistedTables(customer_id, cloud_account_id)),
         }
     )
 }

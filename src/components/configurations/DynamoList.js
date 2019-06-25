@@ -7,40 +7,24 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
-import CommentIcon from '@material-ui/icons/Comment';
+import EditIcon from '@material-ui/icons/Edit';
 
 const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
-        maxWidth: 360,
-        backgroundColor: theme.palette.background.paper,
     },
 }));
 
 export default function CheckboxList(props) {
     const classes = useStyles();
-    const [checked, setChecked] = React.useState([]);
 
-    const handleToggle = value => () => {
-        const currentIndex = checked.indexOf(value);
-        const newChecked = [...checked];
-
-        if (currentIndex === -1) {
-            newChecked.push(value);
-        } else {
-            newChecked.splice(currentIndex, 1);
-        }
-
-        setChecked(newChecked);
-    };
-    const { items } = props;
+    const { items, checked } = props;
     return (
         <List className={classes.root}>
             {items.map(value => {
                 const labelId = `checkbox-list-label-${value}`;
-
                 return (
-                    <ListItem key={value} role={undefined} dense button onClick={handleToggle(value)}>
+                    <ListItem key={value} role={undefined} dense button onClick={props.handleToggle(value)}>
                         <ListItemIcon>
                             <Checkbox
                                 edge="start"
@@ -51,11 +35,11 @@ export default function CheckboxList(props) {
                             />
                         </ListItemIcon>
                         <ListItemText id={labelId} primary={value} />
-                        {/* <ListItemSecondaryAction>
+                        <ListItemSecondaryAction>
                             <IconButton edge="end" aria-label="Comments">
-                                <CommentIcon />
+                                <EditIcon />
                             </IconButton>
-                        </ListItemSecondaryAction> */}
+                        </ListItemSecondaryAction>
                     </ListItem>
                 );
             })}
