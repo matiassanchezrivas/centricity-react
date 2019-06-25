@@ -1,20 +1,21 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { withStyles } from '@material-ui/styles';
 import { Typography, Grid, TextField, Divider, FormControl, MenuItem, IconButton, Button } from '@material-ui/core/';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-const useStyles = makeStyles({
+const styles = theme => ({
     root: {
-        flexGrow: 1,
+      // JSS uses px as the default units for this CSS property.
+      padding: 16, // = 8 * 2
     },
-});
+  });
 
-export default function CenteredTabs(props) {
+function CenteredTabs(props) {
     // const classes = useStyles();
     // const [value, setValue] = React.useState(0);
-    const { newTable, addKey, deleteKey, handleChangeInside, confirmCreateTable } = props;
+    const { newTable, addKey, deleteKey, handleChangeInside, confirmCreateTable, classes } = props;
 
-    return (<div>
+    return (<div className={classes.root} >
         <Typography variant="h6">
             Create table
                 </Typography>
@@ -83,3 +84,5 @@ export default function CenteredTabs(props) {
 
 
 }
+
+export default withStyles(styles)(CenteredTabs);

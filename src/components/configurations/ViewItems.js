@@ -11,7 +11,7 @@ const useStyles = makeStyles({
 export default function CenteredTabs(props) {
     const classes = useStyles();
     const [value, setValue] = React.useState(0);
-    const { selectedTable, all_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
+    const { selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
 
     return (<div>
         <Grid item xs={12}>
@@ -22,7 +22,7 @@ export default function CenteredTabs(props) {
                     value={selectedTable}
                     onChange={(e) => handleChange(e)}
                 >
-                    {all_tables.map((option, i) => <MenuItem key={i} value={option}>{option}</MenuItem>)}
+                    {all_persisted_tables.map((option, i) => (option.active) ? <MenuItem key={i} value={option.table_name}>{option.table_name}</MenuItem> : null)}
                 </Select>
             </FormControl>
         </Grid>

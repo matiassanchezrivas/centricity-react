@@ -16,7 +16,7 @@ class ConfigurationsPage extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            tab: 'create',
+            tab: 'select',
             newTable: {
                 keys: [{ name: 'id', type: 'Number', primaryKey: true }]
             },
@@ -33,6 +33,7 @@ class ConfigurationsPage extends Component {
         this.createTableClick = this.createTableClick.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.confirmCreateTable = this.confirmCreateTable.bind(this);
+        this.handleChangeInside = this.handleChangeInside.bind(this);
     }
 
     async handleChange(e) {
@@ -137,7 +138,7 @@ class ConfigurationsPage extends Component {
 
     render() {
         const { selectedTable, openModal, keys, cloudAccounts, selectedAccount, currentClient, tab } = this.state;
-        const { all_tables, items, fetchItems } = this.props;
+        const { all_tables, all_persisted_tables, items, fetchItems } = this.props;
         return (
             <div>
                 <Grid
@@ -177,11 +178,11 @@ class ConfigurationsPage extends Component {
                                 <Tab value={"view"} label="View items" />
                             </Tabs>
                         </Paper>
-                            {tab === 'select' && <Typography><SelectTables items={all_tables} /></Typography>}
+                            {tab === 'select' && <SelectTables all_tables={all_tables} all_persisted_tables={all_persisted_tables} />}
 
                             {tab === 'create' && <CreateTable newTable={this.state.newTable} addKey={this.addKey} deleteKey={this.deleteKey} handleChangeInside={this.handleChangeInside} confirmCreateTable={this.confirmCreateTable} />}
 
-                            {tab === 'view' && <ViewItems selectedTable={selectedTable} all_tables={all_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange} />}
+                            {tab === 'view' && <ViewItems selectedTable={selectedTable} all_persisted_tables={all_persisted_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange} />}
                         </div>}
                     </Grid>
 
@@ -204,6 +205,7 @@ const mapDispatchToProps = function (dispatch) {
 const mapStateToProps = function (state) {
     return {
         all_tables: state.configurations.all_tables,
+        all_persisted_tables: state.configurations.all_persisted_tables,
         items: state.configurations.items,
         currentClient: state.clients.currentClient
     };

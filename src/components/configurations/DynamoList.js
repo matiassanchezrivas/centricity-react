@@ -18,10 +18,10 @@ const useStyles = makeStyles(theme => ({
 export default function CheckboxList(props) {
     const classes = useStyles();
 
-    const { items, checked } = props;
+    const { all_tables, checked } = props;
     return (
         <List className={classes.root}>
-            {items.map(value => {
+            {all_tables.map(value => {
                 const labelId = `checkbox-list-label-${value}`;
                 return (
                     <ListItem key={value} role={undefined} dense button onClick={props.handleToggle(value)}>
@@ -35,11 +35,11 @@ export default function CheckboxList(props) {
                             />
                         </ListItemIcon>
                         <ListItemText id={labelId} primary={value} />
-                        <ListItemSecondaryAction>
+                        {/* <ListItemSecondaryAction>
                             <IconButton edge="end" aria-label="Comments">
                                 <EditIcon />
                             </IconButton>
-                        </ListItemSecondaryAction>
+                        </ListItemSecondaryAction> */}
                     </ListItem>
                 );
             })}
