@@ -5,10 +5,13 @@ import DeleteIcon from '@material-ui/icons/Delete';
 
 const styles = theme => ({
     root: {
-      // JSS uses px as the default units for this CSS property.
-      padding: 16, // = 8 * 2
+        // JSS uses px as the default units for this CSS property.
+        padding: 16, // = 8 * 2
     },
-  });
+    margin: {
+        margin: 8
+    }
+});
 
 function CenteredTabs(props) {
     // const classes = useStyles();
@@ -28,7 +31,7 @@ function CenteredTabs(props) {
                 id="tableName"
                 label="Name"
                 style={{ width: '100%' }}
-                // className={classes.textField}
+                className={classes.margin}
                 name='name'
                 value={newTable.name}
                 onChange={(e) => handleChangeInside(e, 'newTable')}
@@ -36,8 +39,8 @@ function CenteredTabs(props) {
             />
         </Grid>
         {newTable && newTable.keys && newTable.keys.map((k, i) => {
-            return <Grid container>
-                <Grid item xs={6}>
+            return <Grid container >
+                <Grid item xs={6} className={classes.margin}>
                     <FormControl style={{ width: '100%' }}>
                         <TextField
                             label="Name"
@@ -48,7 +51,7 @@ function CenteredTabs(props) {
                         />
                     </FormControl>
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4} className={classes.margin}>
                     <FormControl style={{ width: '100%' }}>
                         <TextField
                             select
@@ -71,11 +74,13 @@ function CenteredTabs(props) {
 
         })}
         <Button
+            className={classes.margin}
             onClick={addKey}
             style={{ width: '100%' }}
             variant="contained"
         >addKey</Button>
         <Button
+            className={classes.margin}
             variant="contained" color="primary"
             onClick={confirmCreateTable}
             style={{ width: '100%' }}

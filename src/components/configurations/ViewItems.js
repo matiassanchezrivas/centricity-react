@@ -6,7 +6,11 @@ const useStyles = makeStyles({
     root: {
         flexGrow: 1,
     },
+    margin: {
+        margin: 8
+    }
 });
+
 
 export default function CenteredTabs(props) {
     const classes = useStyles();
@@ -14,7 +18,7 @@ export default function CenteredTabs(props) {
     const { selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
 
     return (<div>
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.margin}>
             <FormControl style={{ width: '100%' }}>
                 <InputLabel >Select a table</InputLabel>
                 <Select
@@ -26,7 +30,7 @@ export default function CenteredTabs(props) {
                 </Select>
             </FormControl>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.margin}>
             <TableViewer
                 fetchItems={fetchItems}
                 selectedTable={selectedTable}
