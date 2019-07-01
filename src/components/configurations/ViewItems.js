@@ -14,7 +14,6 @@ const useStyles = makeStyles({
 
 export default function CenteredTabs(props) {
     const classes = useStyles();
-    const [value, setValue] = React.useState(0);
     const { selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
 
     return (<div>

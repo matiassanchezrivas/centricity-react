@@ -75,14 +75,14 @@ class Sidebar extends Component {
     I18n.setLanguage(languaje);
     return (
       <ul>
-        {menu.map(item => {
+        {menu.map((item, i) => {
           const only = config_menu[item.ref] && config_menu[item.ref].data && config_menu[item.ref].data.permissions && config_menu[item.ref].data.permissions.only;
           return item.roles.length === 0 || !only || _.intersection(item.roles, only).length > 0 ?
-            <li>
+            <li key={i} >
               {
                 item.submenu ?
-                  <a href={null} ui-sref-active="active" data-icon-after='&#xe5cd;' class="ch-menu__link">{I18n.get(item.name)}</a> :
-                  <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/#' + config_menu[item.ref].url} ui-sref-active="active" class="ch-menu__link">{I18n.get(item.name)}</a>
+                  <a href={null} ui-sref-active="active" data-icon-after='&#xe5cd;' className="ch-menu__link">{I18n.get(item.name)}</a> :
+                  <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/#' + config_menu[item.ref].url} ui-sref-active="active" className="ch-menu__link">{I18n.get(item.name)}</a>
               }
             </li>
             : null
@@ -95,8 +95,8 @@ class Sidebar extends Component {
   render() {
     const { currentUser } = this.props;
     return (
-      <nav id="ch-menu" class="ch-menu" menu>
-        <div class="ch-level">
+      <nav id="ch-menu" className="ch-menu menu">
+        <div className="ch-level">
           <h2>{I18n.get("MENU_HEADLINE")}</h2>
           <ul>
             {this.renderMenu(menu, currentUser.roles)}

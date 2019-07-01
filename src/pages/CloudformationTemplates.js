@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
@@ -538,7 +538,7 @@ class cloudformationTemplates extends React.Component {
     }
 
     render() {
-        const { state, setState } = this;
+        const { state } = this;
         const { openModal } = state;
         return (
             <div className='tabla-material'>

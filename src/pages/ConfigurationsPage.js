@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
-import queryString from 'query-string';
-import { fetchUser } from '../actions-creator/user'
 import { connect } from 'react-redux';
 import { fetchTables, fetchItems, fetchPersistedTables } from '../actions-creator/configurations'
-import { FormControl, InputLabel, Select, MenuItem, IconButton, TextField, Button, Typography, Grid, Divider, FormControlLabel, Switch, Input, Paper, AppBar, Tabs, Tab } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import Modal from '../components/Modal'
+import { FormControl, InputLabel, Select, MenuItem, Typography, Grid, Paper, Tabs, Tab } from '@material-ui/core';
 import { axiosCloudformation, axiosConfigurations } from '../config/axios'
 
 import CreateTable from '../components/configurations/CreateTable'
