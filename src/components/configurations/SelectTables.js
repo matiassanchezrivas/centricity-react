@@ -9,7 +9,6 @@ export default function SelectTables(props) {
     const [checked, setChecked] = React.useState([]);
 
     React.useEffect(() => {
-        console.log('useEffect')
         let newChecked = [];
         all_tables.forEach(table => {
             if (_.findIndex(all_persisted_tables, (o) => o.table_name === table && o.active) !== -1) {

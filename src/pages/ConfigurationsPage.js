@@ -48,7 +48,7 @@ class ConfigurationsPage extends Component {
             let keys = tableConfig ? JSON.parse(tableConfig.keys) : []
             this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, value, keys.map(k => k.name));
             this.setState({ keys })
-        } else if (name == 'selectedAccount') {
+        } else if (name === 'selectedAccount') {
             this.props.fetchTables(currentClient ? currentClient.id : null, value);
             this.props.fetchPersistedTables(currentClient ? currentClient.id : null, value);
         }

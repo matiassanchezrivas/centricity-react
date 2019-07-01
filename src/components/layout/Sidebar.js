@@ -77,7 +77,7 @@ class Sidebar extends Component {
       <ul>
         {menu.map(item => {
           const only = config_menu[item.ref] && config_menu[item.ref].data && config_menu[item.ref].data.permissions && config_menu[item.ref].data.permissions.only;
-          return item.roles.length == 0 || !only || _.intersection(item.roles, only).length > 0 ?
+          return item.roles.length === 0 || !only || _.intersection(item.roles, only).length > 0 ?
             <li>
               {
                 item.submenu ?

@@ -36,7 +36,7 @@ export default function CenteredTabs(props) {
                 selectedTable={selectedTable}
                 keys={keys.map(key => key.name)}
                 columns={keys.map(key => {
-                    return { title: key.name, field: key.name, type: key.type == 'N' ? 'numeric' : 'string' }
+                    return { title: key.name, field: key.name, type: key.type === 'N' ? 'numeric' : 'string' }
                 })}
                 data={items ? items.Items : []}
                 selectedAccount={selectedAccount}

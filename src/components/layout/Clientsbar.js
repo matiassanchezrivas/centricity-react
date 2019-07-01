@@ -6,9 +6,6 @@ import I18n from '../../config/i18n'
 import { fetchClients, fetchClient } from '../../actions-creator/client'
 import { connect } from 'react-redux';
 
-
-const hardcodedRoles = ['CH_SYSTEM_ADMIN']
-
 class Sidebar extends Component {
   constructor(props) {
     super(props)
@@ -26,7 +23,7 @@ class Sidebar extends Component {
     return (
       <ul>
         {menu.map(item => {
-          return item.roles.length == 0 || _.intersection(item.roles, roles).length > 0 ?
+          return item.roles.length === 0 || _.intersection(item.roles, roles).length > 0 ?
             <li>
               <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
             </li>
