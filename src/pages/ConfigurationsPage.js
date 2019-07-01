@@ -72,8 +72,6 @@ class ConfigurationsPage extends Component {
 
     async componentDidMount() {
         const { currentClient } = this.props;
-        const { selectedAccount } = this.state;
-        this.props.fetchTables(currentClient ? currentClient.id : null, selectedAccount);
         const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id })
             .then(response => response.data)
             .catch(e => { })
@@ -178,7 +176,7 @@ class ConfigurationsPage extends Component {
                                 <Tab value={"view"} label="View items" />
                             </Tabs>
                         </Paper>
-                            {tab === 'select' && <SelectTables all_tables={all_tables} all_persisted_tables={all_persisted_tables} cloud_account_id={selectedAccount} customer_id={currentClient.id} />}
+                            {tab === 'select' && <SelectTables fetchPersistedTables={this.props.fetchPersistedTables} all_tables={all_tables} all_persisted_tables={all_persisted_tables} cloud_account_id={selectedAccount} customer_id={currentClient.id} />}
 
                             {tab === 'create' && <CreateTable newTable={this.state.newTable} addKey={this.addKey} deleteKey={this.deleteKey} handleChangeInside={this.handleChangeInside} confirmCreateTable={this.confirmCreateTable} />}
 
