@@ -5,6 +5,7 @@ import config_menu from '../../config/menu'
 import { connect } from 'react-redux';
 import { withRouter } from "react-router";
 import I18n from '../../config/i18n'
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 const menu = {
   name: "MENU_HEADLINE", submenu: [
@@ -43,7 +44,8 @@ const menu = {
         { name: "MEDIA_BOX_STREAM_MANAGER", class: '', ref: "app.mediabox_stream_manager", roles: [] },
         { name: "MEDIA_BOX_PAST_EVENTS", class: '', ref: "app.mediabox_past_events", roles: [] },
         { name: "MEDIA_BOX_MEDIA_LIBRARY", class: '', ref: "app.mediabox_media_library", roles: [] },
-        { name: "MEDIA_BOX_STATS", class: '', ref: '', roles: [] },]
+        // { name: "MEDIA_BOX_STATS", class: '', ref: '', roles: [] },
+      ]
     }
     ,
     { name: "MENU_CREDENTIALS", class: '', ref: "app.credentials", roles: [roles.CH_USER, roles.CH_USER_ADMIN, roles.CH_USER_LIMITED, roles.CH_SYSTEM_ADMIN] },
@@ -87,7 +89,7 @@ class Sidebar extends Component {
                 {
                   item.submenu ?
                     <a onClick={() => onClickSubmenu(item.name)} href={null} ui-sref-active="active" data-icon-after='&#xe5cd;' className="ch-menu__link">{I18n.get(item.name)}</a> :
-                    item.name === 'MENU_BACK' ? <a onClick={() => onClickMenuBack(menu.name)} class="ch-back" href="#" data-icon-before="&#xe5cc;">{I18n.get(item.name)}</a> : <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/#'} ui-sref-active="active" className="ch-menu__link">{I18n.get(item.name)}</a>
+                    item.name === 'MENU_BACK' ? <a onClick={() => onClickMenuBack(menu.name)} class="ch-back" href="#" data-icon-before="&#xe5cc;">{I18n.get(item.name)}</a> : <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/#' + config_menu[item.ref].url} ui-sref-active="active" className="ch-menu__link">{I18n.get(item.name)}</a>
                 }
               </li>
               : null
@@ -108,19 +110,18 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { currentUser, level, submenus } = this.props;
+    const { currentUser, level, submenus, toggleOptionsBar, optionsMenuOpen } = this.props;
     let newMenu = menu;
     if (submenus.length) {
       newMenu = this.getMenu(menu, submenus)
     }
     return (
-      <nav id="ch-menu" className="ch-menu menu">
-        <div className="ch-level">
-
-          {this.renderMenu(newMenu, currentUser.roles)}
-
-        </div>
-      </nav>
+      <ClickAwayListener onClickAway={optionsMenuOpen ? () => toggleOptionsBar() : null}>
+        <nav id="ch-menu" className="ch-menu menu">
+          <div className="ch-level">
+            {this.renderMenu(newMenu, currentUser.roles)}
+          </div>
+        </nav></ClickAwayListener>
     )
   }
 }

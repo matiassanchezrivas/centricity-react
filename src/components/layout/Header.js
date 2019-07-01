@@ -11,6 +11,13 @@ class Header extends Component {
     this.state = {
       dropdownMenu: false,
     }
+    this.handleChangeDropdownMenu = this.handleChangeDropdownMenu.bind(this);
+  }
+
+  handleChangeDropdownMenu(dropdownMenu) {
+    this.setState({
+      dropdownMenu
+    })
   }
 
   render() {
@@ -21,7 +28,7 @@ class Header extends Component {
     return (
       <div className="topbar">
         {/* Button toggle menu */}
-        <button onClick={toggleOptionsBar} type="button" role="button" aria-label="Toggle Navigation" className={`lines-button x js-menu-trigger ${menuOpen && 'close-menu'}`} ng-show="isAuthorized([roles.CH_USER,roles.CH_USER_ADMIN,roles.CH_USER_LIMITED]) || (isAuthorized([roles.CH_SYSTEM_ADMIN]) && customer)">
+        <button onClick={!menuOpen ? toggleOptionsBar : null} type="button" role="button" aria-label="Toggle Navigation" className={`lines-button x js-menu-trigger ${menuOpen && 'close-menu'}`} ng-show="isAuthorized([roles.CH_USER,roles.CH_USER_ADMIN,roles.CH_USER_LIMITED]) || (isAuthorized([roles.CH_SYSTEM_ADMIN]) && customer)">
           <span className="lines"></span>
         </button>
         {/* Logo */}
@@ -39,7 +46,7 @@ class Header extends Component {
             <span className="usermenu" data-animation="am-flip-x" bs-dropdown="dropdown" data-placement="bottom-right">
               {I18n.get('WELCOME')} <span className="usermenu__name" onClick={() => this.setState({ dropdownMenu: !dropdownMenu })} data-icon-after="&#xe5ca;">{`${currentUser.name} ${currentUser.lastName}`}</span>
             </span>
-            {dropdownMenu && <Dropdown />}
+            {dropdownMenu && <Dropdown handleChange={this.handleChangeDropdownMenu} />}
           </div>
           <button type="button" role="button" aria-label="Log out" className="userbar__logout" ng-if="isAuthorized([roles.CH_USER_ADMIN,roles.CH_USER_LIMITED, roles.CH_USER])" ng-click="$emit('logout')"></button>
 

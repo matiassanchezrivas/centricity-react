@@ -50,57 +50,13 @@ class Layout extends Component {
     }
 
     toggleOptionsBar() {
-        const { level, optionsMenuOpen } = this.state;
-        if (level > 0) {
-            this.setState({
-                optionsMenuOpen: level - 1,
-            });
-        } else {
-            this.setState({
-                optionsMenuOpen: !optionsMenuOpen,
-            });
-        }
+        const { level, submenus, optionsMenuOpen } = this.state;
+        this.setState({
+            optionsMenuOpen: !optionsMenuOpen,
+            submenus: !optionsMenuOpen ? [] : submenus,
+            level: !optionsMenuOpen ? 0 : level,
+        });
 
-
-
-        // _openMenu: function (subLevel) {
-        // 	// increment level depth
-        // 	++this.level;
-
-        // 	// move the main wrapper
-        // 	var levelFactor = (this.level - 1) * this.options.levelSpacing,
-        // 		translateVal = this.options.type === 'overlap' ? this.el.offsetWidth + levelFactor : this.el.offsetWidth;
-
-        // 	this._setTransform('translate3d(' + translateVal + 'px,0,0)');
-
-        // 	if (subLevel) {
-        // 		// reset transform for sublevel
-        // 		this._setTransform('', subLevel);
-        // 		// need to reset the translate value for the level menus that have the same level depth and are not open
-        // 		for (var i = 0, len = this.levels.length; i < len; ++i) {
-        // 			var levelEl = this.levels[i];
-        // 			if (levelEl != subLevel && !$(levelEl).hasClass('ch-level-open')) {
-        // 				this._setTransform('translate3d(-100%,0,0) translate3d(' + -1 * levelFactor + 'px,0,0)', levelEl);
-        // 			}
-        // 		}
-        // 	}
-        // 	// add class ch-pushed to main wrapper if opening the first time
-        // 	if (this.level === 1) {
-        // 		$(this.wrapper).addClass('ch-pushed');
-        // 		this.open = true;
-        // 	}
-        // 	// add class ch-level-open to the opening level element
-        // 	$(subLevel || this.levels[0]).addClass('ch-level-open');
-
-        // 	var scope = angular.element('.js-menu-trigger').scope();
-        // 	if (!scope.$$phase) {
-        // 		scope.$apply(function () {
-        // 			scope.menuOpen = true;
-        // 		});
-        // 	} else {
-        // 		scope.menuOpen = true;
-        // 	}
-        // },
     }
 
     toggleClientsBar() {
@@ -137,7 +93,7 @@ class Layout extends Component {
         return (
             !loading && <div className='aside-open aside-with-am-fade-and-slide-right'>
 
-                {clientsMenuOpen && <Clientsbar toggleClientsBar={this.toggleClientsBar} />}
+                {clientsMenuOpen && <Clientsbar clientsMenuOpen={clientsMenuOpen} toggleClientsBar={this.toggleClientsBar} />}
                 <div className="ch-container ng-scope">
                     <div
                         id="ch-pusher"
@@ -145,7 +101,7 @@ class Layout extends Component {
                         style={optionsMenuOpen ? Styles.translateOpen : Styles.translateClosed}
                     >
                         {/* ch menu */}
-                        <Sidebar toggleOptionsBar={this.toggleOptionsBar} onClickSubmenu={this.onClickSubmenu} onClickMenuBack={this.onClickMenuBack} submenus={submenus} level={level} />
+                        <Sidebar optionsMenuOpen={optionsMenuOpen} toggleOptionsBar={this.toggleOptionsBar} onClickSubmenu={this.onClickSubmenu} onClickMenuBack={this.onClickMenuBack} submenus={submenus} level={level} />
                         <div className="ch-scroller">
                             <div className="scroller-inner">
                                 <Header

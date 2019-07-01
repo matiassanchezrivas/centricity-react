@@ -5,6 +5,7 @@ import config from '../../config/config'
 import I18n from '../../config/i18n'
 import { fetchClients, fetchClient } from '../../actions-creator/client'
 import { connect } from 'react-redux';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 class Sidebar extends Component {
   constructor(props) {
@@ -47,33 +48,35 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { toggleClientsBar, languaje } = this.props;
+    const { toggleClientsBar, languaje, clientsMenuOpen } = this.props;
     const { filteredClients } = this.state;
     I18n.setLanguage(languaje);
     return (
-      <div className="aside" tabindex="-1" role="dialog">
-        <div className="aside-dialog">
-          <div className="aside-content">
-            <div className="aside-header">
-              <div className="aside-close" onClick={toggleClientsBar}>&#xe2aa;</div>
-              <h4 className="aside-title">{I18n.get('ADMIN_MENU_CLIENTS_TITLE')}</h4>
-            </div>
-            <div className="aside-body">
-              <div className="customer-actions">
-                <input onChange={this.filterClients} className="customer-search" ng-model="search.name" />
-                <div className="customer-search-icon">F</div>
-                <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace(+'/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
+      <ClickAwayListener onClickAway={clientsMenuOpen ? toggleClientsBar : null}>
+        <div className="aside" tabindex="-1" role="dialog">
+          <div className="aside-dialog">
+            <div className="aside-content">
+              <div className="aside-header">
+                <div className="aside-close" onClick={toggleClientsBar}>&#xe2aa;</div>
+                <h4 className="aside-title">{I18n.get('ADMIN_MENU_CLIENTS_TITLE')}</h4>
               </div>
-              {/* No customers */}
-              {(!filteredClients || !filteredClients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
-              {/* Customers list */}
-              {filteredClients && filteredClients.length && filteredClients.map(c => <div
-                className="customer-selection" onClick={e => this.selectClient(c)}>{c.name}</div>
-              )}
+              <div className="aside-body">
+                <div className="customer-actions">
+                  <input onChange={this.filterClients} className="customer-search" ng-model="search.name" />
+                  <div className="customer-search-icon">F</div>
+                  <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace(+'/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
+                </div>
+                {/* No customers */}
+                {(!filteredClients || !filteredClients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}
+                {/* Customers list */}
+                {filteredClients && filteredClients.length && filteredClients.map(c => <div
+                  className="customer-selection" onClick={e => this.selectClient(c)}>{c.name}</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </ClickAwayListener>
     )
   }
 }
