@@ -13,11 +13,13 @@ class Layout extends Component {
         this.state = {
             optionsMenuOpen: false,
             clientsMenuOpen: false,
-            sublevel: 0,
+            submenus: [],
             level: 0,
             loading: true,
         }
 
+        this.onClickSubmenu = this.onClickSubmenu.bind(this);
+        this.onClickMenuBack = this.onClickMenuBack.bind(this);
         this.toggleOptionsBar = this.toggleOptionsBar.bind(this);
         this.toggleClientsBar = this.toggleClientsBar.bind(this);
     }
@@ -25,9 +27,9 @@ class Layout extends Component {
     async componentDidMount() {
         this.props.fetchClients();
         let session = localStorage.getItem('cloudpoxee.session')
-        console.log('session', session);
         if (!session) {
             // window.location.replace('/#/login')
+            this.setState({ loading: false })
             const u = await this.props.fetchUser()
                 .catch(e => {
                     // window.location.replace('/#/login')
@@ -37,7 +39,6 @@ class Layout extends Component {
         } else {
             //ir a /user/me
             const parsedSession = JSON.parse(session);
-            console.log('parsedSession', parsedSession);
             // if (!parsedSession.user.customer) window.location.replace('#/dashboard')
             await this.props.fetchClient(parsedSession.user.customer)
             await this.props.fetchUser(parsedSession.sessionId)
@@ -50,9 +51,16 @@ class Layout extends Component {
 
     toggleOptionsBar() {
         const { level, optionsMenuOpen } = this.state;
-        this.setState({
-            optionsMenuOpen: !optionsMenuOpen,
-        });
+        if (level > 0) {
+            this.setState({
+                optionsMenuOpen: level - 1,
+            });
+        } else {
+            this.setState({
+                optionsMenuOpen: !optionsMenuOpen,
+            });
+        }
+
 
 
         // _openMenu: function (subLevel) {
@@ -102,8 +110,30 @@ class Layout extends Component {
         });
     }
 
+    onClickSubmenu(submenu) {
+        const { submenus, level } = this.state;
+        if (submenus.indexOf(submenu) === -1) {
+            let newSubmenus = [...submenus, submenu];
+            this.setState({
+                submenus: newSubmenus, level: level + 1
+            })
+        }
+    }
+
+    onClickMenuBack(submenu) {
+        const { submenus, level } = this.state;
+        let newSubmenus = [...submenus]
+        var index = newSubmenus.indexOf(submenu);
+        if (index !== -1) {
+            newSubmenus.splice(index, 1);
+            this.setState({
+                submenus: newSubmenus, level: level - 1
+            })
+        }
+    }
+
     render() {
-        const { clientsMenuOpen, optionsMenuOpen, loading } = this.state;
+        const { clientsMenuOpen, optionsMenuOpen, loading, submenus, level } = this.state;
         return (
             !loading && <div className='aside-open aside-with-am-fade-and-slide-right'>
 
@@ -113,10 +143,9 @@ class Layout extends Component {
                         id="ch-pusher"
                         className={`ch-pusher ${optionsMenuOpen ? 'ch-pushed' : ''} `}
                         style={optionsMenuOpen ? Styles.translateOpen : Styles.translateClosed}
-
                     >
                         {/* ch menu */}
-                        <Sidebar toggleOptionsBar={this.toggleOptionsBar} />
+                        <Sidebar toggleOptionsBar={this.toggleOptionsBar} onClickSubmenu={this.onClickSubmenu} onClickMenuBack={this.onClickMenuBack} submenus={submenus} level={level} />
                         <div className="ch-scroller">
                             <div className="scroller-inner">
                                 <Header
