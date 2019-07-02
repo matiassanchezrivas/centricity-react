@@ -66,36 +66,34 @@ class cloudformationTemplates extends React.Component {
 
     executeTemplate() {
         const { id, selectedAccount, Parameters, stackName } = this.state.executeRow;
+        const cloud_accounts = [selectedAccount];
         const date = (new Date()).getTime();
         console.log(id, selectedAccount)
-        axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_account_id: selectedAccount, Parameters, stackName })
-            .then(response => {
-                this.props.fetchStackEvents({ stackName, cloud_account_id: selectedAccount, date })
+        axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_accounts, Parameters, stackName })
+            .then(response => response.data)
+            .then(data => {
+                console.log('data', data);
+                this.props.fetchStackEvents({ stackName, cloud_account_id: cloud_accounts[0], date })
                     .then(() => this.setState({
                         logs: {
                             stackName,
-                            cloud_account_id: selectedAccount,
+                            cloud_accounts,
                             date
                         },
-                        modal: 'logs'
+                        modal: 'logs',
+                        selectedLogTab: cloud_accounts[0],
                     }))
-                return response.data
+
             })
             .catch(e => { console.log(e) })
     }
 
-    updateLogs() {
+    updateLogs(cloud_account_id) {
         if (!this.state.logs) return
-        const { stackName, cloud_account_id, date } = this.state.logs;
+        const { stackName, date } = this.state.logs;
         if (!stackName || !cloud_account_id) return
 
         this.props.fetchStackEvents({ stackName, cloud_account_id, date })
-            .then(() => this.setState({
-                logs: {
-                    stackName,
-                    cloud_account_id,
-                }
-            }))
     }
 
     fileChangedHandler(e) {
@@ -213,7 +211,7 @@ class cloudformationTemplates extends React.Component {
     async clickExecuteTemplate(event, rowData) {
         //Get cloudaccounts
         const { currentClient } = this.props;
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id }) //TODO replace customer_id
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
@@ -223,7 +221,7 @@ class cloudformationTemplates extends React.Component {
         console.log('TEMPLATE', templateJSON)
 
         let Parameters = {}
-        if (templateJSON.Parameters) {
+        if (templateJSON && templateJSON.Parameters) {
             Object.keys(templateJSON.Parameters).forEach(param => {
                 Parameters[param] = templateJSON.Parameters[param].Default
             })
@@ -291,27 +289,25 @@ class cloudformationTemplates extends React.Component {
     }
 
     renderLogs() {
-        const { logs } = this.state;
+        const { logs, selectedLogTab } = this.state;
         const { stackEvents } = this.props;
         return (
             <Container>
                 <form noValidate autoComplete="off">
-
                     <MaterialTable
                         title={`Execution logs from ${logs.stackName}`}
-                        columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason','Timestamp'].map(a => ({ field: a, title: a }))}
+                        columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason', 'Timestamp'].map(a => ({ field: a, title: a }))}
                         data={stackEvents}
                         actions={[
                             //FREE ACTIONS
                             {
                                 icon: 'update',
                                 tooltip: 'Force update',
-                                onClick: this.updateLogs,
+                                onClick: () => this.updateLogs(selectedLogTab),
                                 isFreeAction: true
                             },
                         ]}
                     />
-
                     <Grid item xs={12}>
                         <Button onClick={this.handleCloseModal}>
                             Close
@@ -397,7 +393,6 @@ class cloudformationTemplates extends React.Component {
 
     renderExecute() {
         const { executeRow, templateJSON } = this.state;
-        console.log(templateJSON.Parameters)
         return (
             <Container>
                 <Typography variant="h6" id="modal-title">
