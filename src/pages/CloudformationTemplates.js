@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
-import { FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
+import { Tabs, Tab, AppBar, FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
 import { axiosCloudformation } from '../config/axios'
 import JSONInput from 'react-json-editor-ajrm';
@@ -289,10 +289,22 @@ class cloudformationTemplates extends React.Component {
     }
 
     renderLogs() {
-        const { logs, selectedLogTab } = this.state;
+        const { logs, selectedLogTab, executeRow } = this.state;
         const { stackEvents } = this.props;
         return (
             <Container>
+                <AppBar position="static" color="default">
+                    <Tabs
+                        value={selectedLogTab}
+                        onChange={value => console.log(value)}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                    >
+                        {logs.cloud_accounts.map((ca_id) => <Tab value={ca_id} label={executeRow.cloudAccounts.find(ca => (ca.id == ca_id)).name} />)}
+                    </Tabs>
+                </AppBar>
                 <form noValidate autoComplete="off">
                     <MaterialTable
                         title={`Execution logs from ${logs.stackName}`}
