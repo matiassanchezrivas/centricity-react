@@ -16,15 +16,17 @@ const styles = theme => ({
 function CenteredTabs(props) {
     // const classes = useStyles();
     // const [value, setValue] = React.useState(0);
-    const { newTable, addKey, deleteKey, handleChangeInside, confirmCreateTable, classes } = props;
+    const { newTable, addKey, deleteKey, handleChangeInside, confirmCreateTable, classes, edition } = props;
 
     return (<div className={classes.root} >
         <Typography variant="h6">
-            Create table
-                </Typography>
+            {!edition && "Create table"}
+            {edition && `Edit table ${newTable.name}`}
+        </Typography>
         <Typography variant="subtitle1" id="simple-modal-description">
-            Define table name and at least the primary key
-                </Typography>
+            {!edition && "Define table name and at least the primary key"}
+            {edition && "The table you selected is not yet Define at least the primary key"}
+        </Typography>
 
         <Grid item xs={12}>
             <TextField
@@ -34,6 +36,7 @@ function CenteredTabs(props) {
                 className={classes.margin}
                 name='name'
                 value={newTable.name}
+                disabled={!handleChangeInside}
                 onChange={(e) => handleChangeInside(e, 'newTable')}
                 margin="normal"
             />
@@ -62,6 +65,7 @@ function CenteredTabs(props) {
                             margin="normal"
                         >
                             {['String', 'Number', 'Binary'].map((option, i) => <MenuItem key={i} value={option}>{option}</MenuItem>)}
+
                         </TextField>
                     </FormControl>
                 </Grid>
@@ -84,7 +88,7 @@ function CenteredTabs(props) {
             variant="contained" color="primary"
             onClick={confirmCreateTable}
             style={{ width: '100%' }}
-        >Confirm</Button>
+        >{edition ? "Save" : "Confirm"}</Button>
     </div>)
 
 
