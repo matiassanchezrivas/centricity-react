@@ -18,6 +18,9 @@ class cloudformationTemplates extends React.Component {
             state: "list",
             newRow: {},
             viewRow: {},
+            executeRow: {
+                selectedAccounts: []
+            },
             logs: {},
             modal: 'new',
             data: this.props.templates,
@@ -32,6 +35,7 @@ class cloudformationTemplates extends React.Component {
         this.reset = this.reset.bind(this);
         this.renderNew = this.renderNew.bind(this);
         this.renderView = this.renderView.bind(this);
+        this.onChangeTab = this.onChangeTab.bind(this);
         this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.clickViewRow = this.clickViewRow.bind(this);
@@ -41,7 +45,8 @@ class cloudformationTemplates extends React.Component {
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.fileChangedHandler = this.fileChangedHandler.bind(this);
-        this.renderParamSelector = this.renderParamSelector.bind(this)
+        this.renderParamSelector = this.renderParamSelector.bind(this);
+        this.handleChangeChecked = this.handleChangeChecked.bind(this);
         this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
     }
 
@@ -67,10 +72,13 @@ class cloudformationTemplates extends React.Component {
     }
 
     executeTemplate() {
-        const { id, selectedAccount, Parameters, stackName } = this.state.executeRow;
-        const cloud_accounts = [selectedAccount];
+        const { id, cloudAccounts, Parameters, stackName, selectedAccounts } = this.state.executeRow;
+        const cloud_accounts = selectedAccounts.map(acname => {
+            let ac = cloudAccounts.find(ca => ca.name === acname)
+            return ac ? ac.id : null;
+        }).filter(el => !!el)
+        console.log(cloud_accounts);
         const date = (new Date()).getTime();
-        console.log(id, selectedAccount)
         axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_accounts, Parameters, stackName })
             .then(response => response.data)
             .then(data => {
@@ -206,7 +214,7 @@ class cloudformationTemplates extends React.Component {
     async clickExecuteTemplate(event, rowData) {
         //Get cloudaccounts
         const { currentClient } = this.props;
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //TODO replace customer_id
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id }) //TODO replace customer_id
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
@@ -228,7 +236,7 @@ class cloudformationTemplates extends React.Component {
             templateJSON,
 
             //set executeRow params
-            executeRow: { ...rowData, cloudAccounts: ca, Parameters, },
+            executeRow: { ...rowData, cloudAccounts: ca, selectedAccounts: [], Parameters, },
 
             openModal: true,
         })
@@ -283,8 +291,22 @@ class cloudformationTemplates extends React.Component {
             </Typography></div>)
     }
 
-    onChangeTab(selectedLogTab) {
-        this.setState({ selectedLogTab })
+    async onChangeTab(e, selectedLogTab) {
+        const { logs } = this.state;
+        const indexSelectedLogTab = logs.cloud_accounts.indexOf(selectedLogTab);
+
+        if (logs.cloud_accounts_responses[indexSelectedLogTab].error) this.setState({ selectedLogTab });
+        else {
+            //LOADING
+            this.setState({ logs: { ...this.state.logs, loading: true }, selectedLogTab })
+
+            //FETCH
+            const { stackName, date } = logs;
+            this.props.fetchStackEvents({ stackName, cloud_account_id: selectedLogTab, date })
+                .then(() => this.setState({
+                    logs: { ...this.state.logs, loading: false },
+                }))
+        }
     }
 
     renderLogs() {
@@ -298,6 +320,7 @@ class cloudformationTemplates extends React.Component {
                 executeRow={executeRow}
                 stackEvents={stackEvents}
                 fetchStackEvents={this.props.fetchStackEvents}
+                onChangeTab={this.onChangeTab}
             />
         )
     }
@@ -376,6 +399,21 @@ class cloudformationTemplates extends React.Component {
         )
     }
 
+    handleChangeChecked(value) {
+        const { selectedAccounts } = this.state.executeRow;
+
+        const currentIndex = selectedAccounts.indexOf(value);
+        const newSelectedAccounts = [...selectedAccounts]
+
+        if (currentIndex === -1) {
+            newSelectedAccounts.push(value)
+        } else {
+            newSelectedAccounts.splice(currentIndex, 1);
+        }
+
+        this.setState({ executeRow: { ...this.state.executeRow, selectedAccounts: newSelectedAccounts } })
+    }
+
     renderExecute() {
         const { executeRow, templateJSON } = this.state;
         return (
@@ -401,24 +439,14 @@ class cloudformationTemplates extends React.Component {
                             margin="normal"
                         />
                     </Grid>
-                    <FormControl style={{ width: '100%' }}>
-                        <InputLabel htmlFor="ca-simple">Cloud account</InputLabel>
-                        <Select
-                            value={executeRow.selectedAccount}
-                            onChange={(e) => this.handleChange('selectedAccount', e)}
-                            inputProps={{
-                                name: 'Cloud account',
-                                id: 'ca-simple',
-                            }}
-                        >
-                            {executeRow.cloudAccounts.map(ca => <MenuItem value={ca.id}>{ca.name}</MenuItem>)}
-                        </Select>
-                    </FormControl>
+                    <Grid item xs={12}>
+                        <CheckList items={executeRow.cloudAccounts.map(ca => ca.name)} handleToggle={this.handleChangeChecked} checked={executeRow.selectedAccounts} />
+                    </Grid>
 
 
-                    <Typography variant="h6" id="modal-title">
+                    {templateJSON && templateJSON.Parameters && <Typography variant="h6" id="modal-title">
                         Parameters
-          </Typography>
+                    </Typography>}
                     {templateJSON && templateJSON.Parameters && Object.keys(templateJSON.Parameters)
                         .map((key) => this.renderParamSelector(key, templateJSON.Parameters[key]))}
 

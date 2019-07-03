@@ -24,7 +24,7 @@ export default function CheckboxList(props) {
             {items.map(value => {
                 const labelId = `checkbox-list-label-${value}`;
                 return (
-                    <ListItem value='xxx' key={value} role={undefined} dense button onClick={handleToggle(value)}>
+                    <ListItem key={value} role={undefined} dense button onClick={() => handleToggle(value)}>
                         <ListItemIcon>
                             <Checkbox
                                 edge="start"
