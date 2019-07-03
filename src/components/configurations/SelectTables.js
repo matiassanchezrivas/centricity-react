@@ -19,7 +19,7 @@ export default function SelectTables(props) {
     }, [all_tables, all_persisted_tables]);
 
 
-    const handleToggle = value => async () => {
+    const handleToggle = async (value) => {
         const currentIndex = checked.indexOf(value);
         if (currentIndex === -1) {
             await updateTable(value, cloud_account_id, customer_id, true)
