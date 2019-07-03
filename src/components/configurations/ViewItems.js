@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Grid, FormControl, MenuItem, InputLabel, Select, Tabs, Tab, Paper } from '@material-ui/core/';
 import TableViewer from '../TableViewer'
 import EditTable from './CreateTable'
+import { axiosConfigurations } from '../../config/axios'
 
 const useStyles = makeStyles({
     root: {
@@ -16,15 +17,14 @@ const useStyles = makeStyles({
 
 export default function CenteredTabs(props) {
     const classes = useStyles();
-    const { selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange, confirmCreateTable } = props;
+    const { selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
 
     const [newTable, setNewTable] = React.useState({});
     const [tab, setTab] = React.useState("list");
-    const [newTableKeys, setKeys] = React.useState([]);
 
     const addKey = () => {
-        const tableKeys = [...newTable.keys]
-        tableKeys.push({ name: '', type: 'String' })
+        const tableKeys = [...newTable.keys];
+        tableKeys.push(tableKeys.length ? { name: '', type: 'String' } : { name: '', type: 'String', primaryKey: true });
         let updatedNewTable = { ...newTable };
         updatedNewTable.keys = tableKeys;
         setNewTable(updatedNewTable);
@@ -48,6 +48,24 @@ export default function CenteredTabs(props) {
         setNewTable(updatedNewTable);
     }
 
+    const confirmCreateTable = () => {
+        if (!newTable.keys || !Array.isArray(newTable.keys) || newTable.keys.length <= 0) return;
+
+        newTable.keys.map(k => {
+            if (k.type === 'Number') k.type = 'N'
+            else if (k.type === 'Binary') k.type = 'B'
+            else k.type = 'S'
+            return k
+        })
+
+        axiosConfigurations.put('/updateConfigurationDynamoTable', {
+            customer_id: currentClient ? currentClient.id : null,
+            cloud_account_id: selectedAccount,
+            tableName: newTable.name,
+            keys: JSON.stringify(newTable.keys),
+            active: true
+        })
+    }
 
     //Changes newTable name
     console.log('keys', keys)
@@ -58,16 +76,21 @@ export default function CenteredTabs(props) {
     }, [selectedTable]);
 
     React.useEffect(() => {
-        if (!keys) { setTab('edit') }
+        if (!keys) {
+            let updatedNewTable = { ...newTable };
+            updatedNewTable.keys = [{ name: '', type: 'String', primaryKey: true }]
+            setNewTable(updatedNewTable);
+            setTab('edit')
+        }
         else {
-            setKeys(keys.map(k => {
-                if (k.type === 'Number') k.type = 'Number'
-                else if (k.type === 'Binary') k.type = 'Binary'
+            const ks = keys.map(k => {
+                if (k.type === 'N') k.type = 'Number'
+                else if (k.type === 'B') k.type = 'Binary'
                 else k.type = 'String'
                 return k
-            }))
+            })
             let updatedNewTable = { ...newTable };
-            updatedNewTable.keys = keys
+            updatedNewTable.keys = ks;
             setNewTable(updatedNewTable);
         }
     }, [keys]);

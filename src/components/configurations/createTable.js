@@ -36,7 +36,7 @@ function CenteredTabs(props) {
                 className={classes.margin}
                 name='name'
                 value={newTable.name}
-                disabled={!handleChangeInside}
+                disabled={edition}
                 onChange={(e) => handleChangeInside(e, 'newTable')}
                 margin="normal"
             />
