@@ -18,19 +18,20 @@ const useStyles = makeStyles(theme => ({
 export default function CheckboxList(props) {
     const classes = useStyles();
 
-    const { all_tables, checked } = props;
+    const { items, checked, handleToggle } = props;
     return (
         <List className={classes.root}>
-            {all_tables.map(value => {
+            {items.map(value => {
                 const labelId = `checkbox-list-label-${value}`;
                 return (
-                    <ListItem key={value} role={undefined} dense button onClick={props.handleToggle(value)}>
+                    <ListItem value='xxx' key={value} role={undefined} dense button onClick={handleToggle(value)}>
                         <ListItemIcon>
                             <Checkbox
                                 edge="start"
                                 checked={checked.indexOf(value) !== -1}
                                 tabIndex={-1}
                                 disableRipple
+
                                 inputProps={{ 'aria-labelledby': labelId }}
                             />
                         </ListItemIcon>

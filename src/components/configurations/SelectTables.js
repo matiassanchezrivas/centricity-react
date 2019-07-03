@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid } from '@material-ui/core/';
-import DynamoList from './DynamoList'
+import CheckList from '../CheckList'
 import _ from 'lodash'
 import { axiosConfigurations } from '../../config/axios'
 
@@ -36,7 +36,7 @@ export default function SelectTables(props) {
 
     return (<div>
         <Grid item xs={12}>
-            <DynamoList all_persisted_tables={all_persisted_tables} all_tables={all_tables} handleToggle={handleToggle} checked={checked} />
+            <CheckList items={all_tables} handleToggle={handleToggle} checked={checked} />
         </Grid>
     </div>)
 }

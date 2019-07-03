@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { fetchTables, fetchItems, fetchPersistedTables } from '../actions-creator/configurations'
 import { FormControl, InputLabel, Select, MenuItem, Typography, Grid, Paper, Tabs, Tab } from '@material-ui/core';
 import { axiosCloudformation, axiosConfigurations } from '../config/axios'
-
 import CreateTable from '../components/configurations/CreateTable'
 import ViewItems from '../components/configurations/ViewItems'
 import SelectTables from '../components/configurations/SelectTables'

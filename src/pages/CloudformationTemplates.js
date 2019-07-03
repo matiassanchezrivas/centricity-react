@@ -2,17 +2,20 @@ import React from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
-import { Tabs, Tab, AppBar, FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
+import { Paper, Breadcrumbs, Link, FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
 import { axiosCloudformation } from '../config/axios'
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
+import ExecutionLogsView from '../components/cloudformation/ExecutionLogsView'
+import CheckList from '../components/CheckList'
 
 
 class cloudformationTemplates extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            state: "list",
             newRow: {},
             viewRow: {},
             logs: {},
@@ -28,7 +31,6 @@ class cloudformationTemplates extends React.Component {
         };
         this.reset = this.reset.bind(this);
         this.renderNew = this.renderNew.bind(this);
-        this.updateLogs = this.updateLogs.bind(this);
         this.renderView = this.renderView.bind(this);
         this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -78,22 +80,15 @@ class cloudformationTemplates extends React.Component {
                         logs: {
                             stackName,
                             cloud_accounts,
+                            cloud_accounts_responses: data.response,
                             date
                         },
-                        modal: 'logs',
+                        state: 'logs',
                         selectedLogTab: cloud_accounts[0],
                     }))
 
             })
             .catch(e => { console.log(e) })
-    }
-
-    updateLogs(cloud_account_id) {
-        if (!this.state.logs) return
-        const { stackName, date } = this.state.logs;
-        if (!stackName || !cloud_account_id) return
-
-        this.props.fetchStackEvents({ stackName, cloud_account_id, date })
     }
 
     fileChangedHandler(e) {
@@ -288,45 +283,23 @@ class cloudformationTemplates extends React.Component {
             </Typography></div>)
     }
 
+    onChangeTab(selectedLogTab) {
+        this.setState({ selectedLogTab })
+    }
+
     renderLogs() {
         const { logs, selectedLogTab, executeRow } = this.state;
         const { stackEvents } = this.props;
+
         return (
-            <Container>
-                <AppBar position="static" color="default">
-                    <Tabs
-                        value={selectedLogTab}
-                        onChange={value => console.log(value)}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        variant="scrollable"
-                        scrollButtons="auto"
-                    >
-                        {logs.cloud_accounts.map((ca_id) => <Tab value={ca_id} label={executeRow.cloudAccounts.find(ca => (ca.id == ca_id)).name} />)}
-                    </Tabs>
-                </AppBar>
-                <form noValidate autoComplete="off">
-                    <MaterialTable
-                        title={`Execution logs from ${logs.stackName}`}
-                        columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason', 'Timestamp'].map(a => ({ field: a, title: a }))}
-                        data={stackEvents}
-                        actions={[
-                            //FREE ACTIONS
-                            {
-                                icon: 'update',
-                                tooltip: 'Force update',
-                                onClick: () => this.updateLogs(selectedLogTab),
-                                isFreeAction: true
-                            },
-                        ]}
-                    />
-                    <Grid item xs={12}>
-                        <Button onClick={this.handleCloseModal}>
-                            Close
-                    </Button>
-                    </Grid>
-                </form>
-            </Container>)
+            <ExecutionLogsView
+                logs={logs}
+                selectedLogTab={selectedLogTab}
+                executeRow={executeRow}
+                stackEvents={stackEvents}
+                fetchStackEvents={this.props.fetchStackEvents}
+            />
+        )
     }
 
     renderView() {
@@ -549,8 +522,23 @@ class cloudformationTemplates extends React.Component {
         const { openModal } = state;
         return (
             <div className='tabla-material'>
-                <MaterialTable
-                    title="Centricity Templates"
+                <Paper style={{ padding: 8 }}>
+                    <Breadcrumbs aria-label="Breadcrumb">
+                        <Link color="inherit" href="/" onClick={() => { }}>
+                            Template </Link>
+                        <Link color="inherit" href="/getting-started/installation/" onClick={() => { }}>
+                            List </Link>
+                        {/* <Link
+                            color="textPrimary"
+                            href="/components/breadcrumbs/"
+                            onClick={() => { }}
+                            aria-current="page"
+                        >
+                            Breadcrumb</Link> */}
+                    </Breadcrumbs>
+                </Paper>
+                {state.state === 'list' && <MaterialTable
+                    title="Templates"
                     columns={state.columns}
                     data={state.data}
                     actions={[
@@ -576,7 +564,8 @@ class cloudformationTemplates extends React.Component {
                     editable={{
                         onRowDelete: oldData => this.deleteRow(oldData)
                     }}
-                />
+                />}
+                {state.state === 'logs' && this.renderLogs()}
                 <Modal
                     open={openModal}
                     handleClose={this.handleCloseModal}
@@ -585,7 +574,6 @@ class cloudformationTemplates extends React.Component {
                         {this.modalSwitch()}
                     </div>
                 </Modal>
-
             </div>
         )
     }
