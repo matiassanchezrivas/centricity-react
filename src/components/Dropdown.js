@@ -86,7 +86,8 @@ class Dropdown extends Component {
                             <li onClick={() => this.onClick(option)} role="presentation" ng-class="{divider: item.divider, active: item.active}" ng-repeat="item in content" class="ng-scope" > <a role="menuitem" tabindex="-1" href="javascript:void(0)" ng-if="!item.divider &amp;&amp; item.click" ng-click="$eval(item.click);$hide()" ng-bind-html="item.text" class="ng-binding ng-scope">{I18n.get((option.text))}
                             </a></li>
                     )}
-                </ul></ClickAwayListener>
+                </ul>
+            </ClickAwayListener>
         )
     }
 }

@@ -52,7 +52,7 @@ class Sidebar extends Component {
     const { filteredClients } = this.state;
     I18n.setLanguage(languaje);
     return (
-      <ClickAwayListener onClickAway={clientsMenuOpen ? toggleClientsBar : null}>
+      <ClickAwayListener onClickAway={clientsMenuOpen ? toggleClientsBar : ()=>{}}>
         <div className="aside" tabindex="-1" role="dialog">
           <div className="aside-dialog">
             <div className="aside-content">

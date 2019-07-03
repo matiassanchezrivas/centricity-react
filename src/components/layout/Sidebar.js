@@ -116,7 +116,7 @@ class Sidebar extends Component {
       newMenu = this.getMenu(menu, submenus)
     }
     return (
-      <ClickAwayListener onClickAway={optionsMenuOpen ? () => toggleOptionsBar() : null}>
+      <ClickAwayListener onClickAway={optionsMenuOpen ? () => toggleOptionsBar() : ()=>{}}>
         <nav id="ch-menu" className="ch-menu menu">
           <div className="ch-level">
             {this.renderMenu(newMenu, currentUser.roles)}
