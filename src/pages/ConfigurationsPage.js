@@ -29,6 +29,7 @@ class ConfigurationsPage extends Component {
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.confirmCreateTable = this.confirmCreateTable.bind(this);
         this.handleChangeInside = this.handleChangeInside.bind(this);
+        this.updateDynamoTableKeys = this.updateDynamoTableKeys.bind(this);
     }
 
     async handleChange(e) {
@@ -37,16 +38,22 @@ class ConfigurationsPage extends Component {
         const { selectedAccount } = this.state;
         this.setState({ [name]: value })
         if (name === 'selectedTable') {
-            const tableConfig = await axiosConfigurations.post('/getDynamoTableKeys', { customer_id: currentClient.id, cloud_account_id: selectedAccount, tableName: value })
-                .then(response => response.data)
-                .catch(e => { })
-            let keys = tableConfig ? JSON.parse(tableConfig.keys) : []
-            if (keys) this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, value, keys.map(k => k.name));
-            this.setState({ keys })
+            this.updateDynamoTableKeys(value)
         } else if (name === 'selectedAccount') {
             this.props.fetchTables(currentClient ? currentClient.id : null, value);
             this.props.fetchPersistedTables(currentClient ? currentClient.id : null, value);
         }
+    }
+
+    async updateDynamoTableKeys(tableName) {
+        const { currentClient } = this.props;
+        const { selectedAccount } = this.state;
+        const tableConfig = await axiosConfigurations.post('/getDynamoTableKeys', { customer_id: currentClient.id, cloud_account_id: selectedAccount, tableName })
+            .then(response => response.data)
+            .catch(e => { })
+        let keys = tableConfig ? JSON.parse(tableConfig.keys) : []
+        if (keys) this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, tableName, keys.map(k => k.name));
+        this.setState({ keys })
     }
 
     handleChangeInside(e, obj, type, i) {
@@ -174,7 +181,7 @@ class ConfigurationsPage extends Component {
 
                             {tab === 'create' && <CreateTable newTable={this.state.newTable} addKey={this.addKey} deleteKey={this.deleteKey} handleChangeInside={this.handleChangeInside} confirmCreateTable={this.confirmCreateTable} />}
 
-                            {tab === 'view' && <ViewItems selectedTable={selectedTable} all_persisted_tables={all_persisted_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange} />}
+                            {tab === 'view' && <ViewItems updateDynamoTableKeys={this.updateDynamoTableKeys} selectedTable={selectedTable} all_persisted_tables={all_persisted_tables} fetchItems={fetchItems} keys={keys} items={items} selectedAccount={selectedAccount} currentClient={currentClient} handleChange={this.handleChange} />}
                         </div>}
                     </Grid>
 

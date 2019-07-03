@@ -17,7 +17,7 @@ const useStyles = makeStyles({
 
 export default function CenteredTabs(props) {
     const classes = useStyles();
-    const { selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
+    const { updateDynamoTableKeys, selectedTable, all_persisted_tables, fetchItems, keys, items, selectedAccount, currentClient, handleChange } = props;
 
     const [newTable, setNewTable] = React.useState({});
     const [tab, setTab] = React.useState("list");
@@ -64,6 +64,8 @@ export default function CenteredTabs(props) {
             tableName: newTable.name,
             keys: JSON.stringify(newTable.keys),
             active: true
+        }).then(() => {
+            updateDynamoTableKeys(newTable.name)
         })
     }
 
