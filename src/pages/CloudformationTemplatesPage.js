@@ -2,14 +2,14 @@ import React from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
-import { Paper, Breadcrumbs, Link, FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
+import { Tab, Tabs, AppBar, Paper, Breadcrumbs, Link, FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
 import Modal from '../components/Modal'
 import { axiosCloudformation } from '../config/axios'
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 import ExecutionLogsView from '../components/cloudformation/ExecutionLogsView'
+import ExecutionList from '../components/cloudformation/ExecutionListView'
 import CheckList from '../components/CheckList'
-
 
 class cloudformationTemplates extends React.Component {
     constructor(props) {
@@ -30,6 +30,7 @@ class cloudformationTemplates extends React.Component {
                 { title: 'Approved by', field: 'approved_by' },
                 { title: 'Description', field: 'description' },
             ],
+            selectedTab: 'templates'
 
         };
         this.reset = this.reset.bind(this);
@@ -72,21 +73,22 @@ class cloudformationTemplates extends React.Component {
     }
 
     executeTemplate() {
-        const { id, cloudAccounts, Parameters, stackName, selectedAccounts } = this.state.executeRow;
+        const { currentClient } = this.props;
+        const { id, template_id, cloudAccounts, Parameters, stackname, selectedAccounts } = this.state.executeRow;
         const cloud_accounts = selectedAccounts.map(acname => {
             let ac = cloudAccounts.find(ca => ca.name === acname)
             return ac ? ac.id : null;
         }).filter(el => !!el)
         console.log(cloud_accounts);
         const date = (new Date()).getTime();
-        axiosCloudformation.post('/executeTemplate', { template_id: id, cloud_accounts, Parameters, stackName })
+        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id })
             .then(response => response.data)
             .then(data => {
                 console.log('data', data);
-                this.props.fetchStackEvents({ stackName, cloud_account_id: cloud_accounts[0], date })
+                this.props.fetchStackEvents({ stackname, cloud_account_id: cloud_accounts[0], date })
                     .then(() => this.setState({
                         logs: {
-                            stackName,
+                            stackname,
                             cloud_accounts,
                             cloud_accounts_responses: data.response,
                             date
@@ -147,11 +149,11 @@ class cloudformationTemplates extends React.Component {
         if (!param) {
             this.setState({
                 [this.state.modal + 'Row']: { ...this.state[this.state.modal + 'Row'], [field]: e.target ? e.target.value : e }
-            }, () => console.log(this.state))
+            })
         } else {
             this.setState({
                 executeRow: { ...this.state.executeRow, Parameters: { ...this.state.executeRow.Parameters, [field]: e.target.value } }
-            }, () => console.log(this.state))
+            })
         }
     }
 
@@ -218,10 +220,9 @@ class cloudformationTemplates extends React.Component {
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
-        const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id })
+        const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id || rowData.template_id })
             .then(response => response.data)
             .catch(e => { })
-        console.log('TEMPLATE', templateJSON)
 
         let Parameters = {}
         if (templateJSON && templateJSON.Parameters) {
@@ -229,14 +230,22 @@ class cloudformationTemplates extends React.Component {
                 Parameters[param] = templateJSON.Parameters[param].Default
             })
         }
-        console.log(Parameters)
+
+        if (rowData.parameters) {
+            console.log(rowData.parameters);
+            const params = JSON.parse(rowData.parameters);
+
+            Object.keys(templateJSON.Parameters).forEach(param => {
+                Parameters[param] = (params[param]) ? params[param] : Parameters[param]
+            })
+        }
 
         this.setState({
             modal: 'execute',
             templateJSON,
 
             //set executeRow params
-            executeRow: { ...rowData, cloudAccounts: ca, selectedAccounts: [], Parameters, },
+            executeRow: { ...rowData, cloudAccounts: ca, selectedAccounts: [], Parameters },
 
             openModal: true,
         })
@@ -301,8 +310,8 @@ class cloudformationTemplates extends React.Component {
             this.setState({ logs: { ...this.state.logs, loading: true }, selectedLogTab })
 
             //FETCH
-            const { stackName, date } = logs;
-            this.props.fetchStackEvents({ stackName, cloud_account_id: selectedLogTab, date })
+            const { stackname, date } = logs;
+            this.props.fetchStackEvents({ stackname, cloud_account_id: selectedLogTab, date })
                 .then(() => this.setState({
                     logs: { ...this.state.logs, loading: false },
                 }))
@@ -430,12 +439,12 @@ class cloudformationTemplates extends React.Component {
                 <form noValidate autoComplete="off">
                     <Grid item xs={12}>
                         <TextField
-                            id="stackName"
-                            label="StackName"
+                            id="stackname"
+                            label="Stackname"
                             style={{ width: '100%' }}
                             // className={classes.textField}
-                            value={executeRow.stackName}
-                            onChange={(e) => this.handleChange('stackName', e)}
+                            value={executeRow.stackname}
+                            onChange={(e) => this.handleChange('stackname', e)}
                             margin="normal"
                         />
                     </Grid>
@@ -547,7 +556,8 @@ class cloudformationTemplates extends React.Component {
 
     render() {
         const { state } = this;
-        const { openModal } = state;
+        const { openModal, selectedTab } = state;
+        const { currentClient } = this.props;
         return (
             <div className='tabla-material'>
                 <Paper style={{ padding: 8 }}>
@@ -565,7 +575,21 @@ class cloudformationTemplates extends React.Component {
                             Breadcrumb</Link> */}
                     </Breadcrumbs>
                 </Paper>
-                {state.state === 'list' && <MaterialTable
+                <AppBar position="static" color="default">
+                    <Tabs
+                        value={selectedTab}
+                        onChange={(e, value) => this.setState({ selectedTab: value })}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        variant="scrollable"
+                        scrollButtons="auto"
+                    >
+                        <Tab value={"templates"} label={"templates"} />
+                        <Tab value={"executions"} label={"executions"} />
+                    </Tabs>
+                </AppBar>
+
+                {state.state === 'list' && selectedTab === 'templates' && <MaterialTable
                     title="Templates"
                     columns={state.columns}
                     data={state.data}
@@ -593,7 +617,8 @@ class cloudformationTemplates extends React.Component {
                         onRowDelete: oldData => this.deleteRow(oldData)
                     }}
                 />}
-                {state.state === 'logs' && this.renderLogs()}
+                {state.state === 'logs' && selectedTab === 'templates' && this.renderLogs()}
+                {selectedTab === 'executions' && <ExecutionList currentClient={currentClient} clickExecuteTemplate={this.clickExecuteTemplate} />}
                 <Modal
                     open={openModal}
                     handleClose={this.handleCloseModal}

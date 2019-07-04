@@ -69,7 +69,6 @@ class ConfigurationsPage extends Component {
                 [obj]: { ...this.state[obj], keys: this.state[obj].keys.map((k, index) => (i === index) ? { ...k, [name]: value } : k) }
             })
         }
-        console.log(this.state)
     }
 
     async componentDidMount() {

@@ -8,7 +8,7 @@ import Layout from './components/layout/Layout'
 import Home from './pages/Home'
 import vendor from './styles/vendor.css'
 import main_css from './styles/main.scss'
-import CloudformationTemplates from './pages/CloudformationTemplates';
+import CloudformationTemplates from './pages/CloudformationTemplatesPage';
 import Configurations from './pages/ConfigurationsPage';
 
 class App extends Component {

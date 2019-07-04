@@ -21,9 +21,9 @@ export default function CenteredTabs(props) {
 
     const updateLogs = (cloud_account_id) => {
         if (!logs) return
-        const { stackName, date } = logs;
-        if (!stackName || !cloud_account_id) return
-        fetchStackEvents({ stackName, cloud_account_id, date })
+        const { stackname, date } = logs;
+        if (!stackname || !cloud_account_id) return
+        fetchStackEvents({ stackname, cloud_account_id, date })
     }
 
     return (<div>
@@ -41,7 +41,7 @@ export default function CenteredTabs(props) {
         </AppBar>
         {logs.cloud_accounts_responses[indexSelectedLogTab].error && <Typography>{errorIntro + logs.cloud_accounts_responses[indexSelectedLogTab].error.message}</Typography>}
         {!logs.cloud_accounts_responses[indexSelectedLogTab].error && !logs.loading && <MaterialTable
-            title={`Execution logs from ${logs.stackName}`}
+            title={`Execution logs from ${logs.stackname}`}
             columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason', 'Timestamp'].map(a => ({ field: a, title: a }))}
             data={stackEvents}
             actions={[
