@@ -25,8 +25,10 @@ export default function ExecutionListView(props) {
     const [executions, setExecutions] = React.useState([])
     const [limit, setLimit] = React.useState(20)
     const [page, set] = React.useState(0)
+    const [openModal, setModalOpen] = React.useState(false)
+    const [loadingLogs, setLoadingLogs] = React.useState(true)
 
-    const { clickExecuteTemplate, currentClient } = props;
+    const { clickExecuteTemplate, currentClient, clickViewRow, fetchStackEvents } = props;
 
     const fetchExecutions = async () => {
         let ex = await axiosCloudformation.post('/getExecutions', { customer_id: currentClient.id }).then(response => response.data)
@@ -34,7 +36,15 @@ export default function ExecutionListView(props) {
         setExecutions(ex);
     }
 
-    const clickViewRow = () => { }
+    const loadLogs = async (row) => {
+        //LOADING
+        setLoadingLogs(true)
+        //FETCH
+        const { stackname, date, cloud_account_id } = row;
+        fetchStackEvents({ stackname, cloud_account_id, date })
+            .then(() => setLoadingLogs(false))
+            .catch(() => setLoadingLogs(false)) //setearError
+    }
 
     React.useEffect(() => {
         fetchExecutions();
@@ -58,7 +68,13 @@ export default function ExecutionListView(props) {
                     tooltip: 'Edit template',
                     onClick: clickViewRow,
                 },
+                {
+                    icon: 'notes',
+                    tooltip: 'View Stack Logs',
+                    onClick: loadLogs,
+                },
             ]}
         />
+        {/* Agregar modal */}
     </div>)
 }
