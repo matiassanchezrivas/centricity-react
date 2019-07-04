@@ -178,7 +178,7 @@ class cloudformationTemplates extends React.Component {
 
     async clickViewRow(event, rowData) {
         console.log(rowData)
-        const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id })
+        const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id || rowData.template_id })
             .then(response => response.data)
             .catch(e => { })
         console.log(templateJSON)
@@ -589,7 +589,7 @@ class cloudformationTemplates extends React.Component {
                     </Tabs>
                 </AppBar>
 
-                {state.state === 'list' && selectedTab === 'templates' && <MaterialTable
+                {selectedTab === 'templates' && <MaterialTable
                     title="Templates"
                     columns={state.columns}
                     data={state.data}
@@ -617,8 +617,7 @@ class cloudformationTemplates extends React.Component {
                         onRowDelete: oldData => this.deleteRow(oldData)
                     }}
                 />}
-                {state.state === 'logs' && selectedTab === 'templates' && this.renderLogs()}
-                {selectedTab === 'executions' && <ExecutionList currentClient={currentClient} clickExecuteTemplate={this.clickExecuteTemplate} />}
+                {selectedTab === 'executions' && <ExecutionList clickViewRow={this.clickViewRow} currentClient={currentClient} clickExecuteTemplate={this.clickExecuteTemplate} />}
                 <Modal
                     open={openModal}
                     handleClose={this.handleCloseModal}
