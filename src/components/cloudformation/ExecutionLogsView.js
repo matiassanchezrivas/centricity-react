@@ -16,7 +16,7 @@ const useStyles = makeStyles({
 export default function CenteredTabs(props) {
     const classes = useStyles();
     const { logs, selectedLogTab, executeRow, stackEvents, onChangeTab, fetchStackEvents } = props;
-    const indexSelectedLogTab = logs.cloud_accounts.indexOf(selectedLogTab);
+    const indexSelectedLogTab = selectedLogTab ? logs.cloud_accounts.indexOf(selectedLogTab) : null;
     const errorIntro = "There was an error running the stack > "
 
     const updateLogs = (cloud_account_id) => {
@@ -27,7 +27,7 @@ export default function CenteredTabs(props) {
     }
 
     return (<div>
-        <AppBar position="static" color="default">
+        {indexSelectedLogTab && <AppBar position="static" color="default">
             <Tabs
                 value={selectedLogTab}
                 onChange={onChangeTab}
@@ -38,9 +38,9 @@ export default function CenteredTabs(props) {
             >
                 {logs.cloud_accounts.map((ca_id) => <Tab value={ca_id} label={executeRow.cloudAccounts.find(ca => (ca.id == ca_id)).name} />)}
             </Tabs>
-        </AppBar>
-        {logs.cloud_accounts_responses[indexSelectedLogTab].error && <Typography>{errorIntro + logs.cloud_accounts_responses[indexSelectedLogTab].error.message}</Typography>}
-        {!logs.cloud_accounts_responses[indexSelectedLogTab].error && !logs.loading && <MaterialTable
+        </AppBar>}
+        {indexSelectedLogTab && logs.cloud_accounts_responses[indexSelectedLogTab].error && <Typography>{errorIntro + logs.cloud_accounts_responses[indexSelectedLogTab].error.message}</Typography>}
+        {(!indexSelectedLogTab || !logs.cloud_accounts_responses[indexSelectedLogTab].error) && !logs.loading && <MaterialTable
             title={`Execution logs from ${logs.stackname}`}
             columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason', 'Timestamp'].map(a => ({ field: a, title: a }))}
             data={stackEvents}

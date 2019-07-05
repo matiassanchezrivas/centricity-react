@@ -2,6 +2,8 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import MaterialTable from 'material-table';
 import { axiosCloudformation } from '../../config/axios'
+import Modal from '../Modal'
+import ExecutionLogsView from './ExecutionLogsView'
 
 const useStyles = makeStyles({
     root: {
@@ -23,26 +25,27 @@ const columns = [
 
 export default function ExecutionListView(props) {
     const [executions, setExecutions] = React.useState([])
-    const [limit, setLimit] = React.useState(20)
-    const [page, set] = React.useState(0)
-    const [openModal, setModalOpen] = React.useState(false)
+    const [openModal, setOpenModal] = React.useState(false)
     const [loadingLogs, setLoadingLogs] = React.useState(true)
+    const [executeRow, setRow] = React.useState({})
+    const [logs, setLogs] = React.useState({})
 
-    const { clickExecuteTemplate, currentClient, clickViewRow, fetchStackEvents } = props;
+    const { clickExecuteTemplate, currentClient, clickViewRow, fetchStackEvents, stackEvents } = props;
 
     const fetchExecutions = async () => {
         let ex = await axiosCloudformation.post('/getExecutions', { customer_id: currentClient.id }).then(response => response.data)
-        ex = ex.map(execution => { execution.date = (new Date(execution.date)).toLocaleString(); return execution })
+        ex = ex.map(execution => { execution.originalDate = execution.date; execution.date = (new Date(execution.date)).toLocaleString(); return execution })
         setExecutions(ex);
     }
 
-    const loadLogs = async (row) => {
+    const loadLogs = async (e, row) => {
         //LOADING
         setLoadingLogs(true)
         //FETCH
-        const { stackname, date, cloud_account_id } = row;
-        fetchStackEvents({ stackname, cloud_account_id, date })
-            .then(() => setLoadingLogs(false))
+        let { stackname, originalDate, cloud_account_id } = row;
+        setLogs({ stackname, cloud_account_id, date: originalDate });
+        fetchStackEvents({ stackname, cloud_account_id, date: originalDate })
+            .then(() => { setLoadingLogs(false); setOpenModal(true) })
             .catch(() => setLoadingLogs(false)) //setearError
     }
 
@@ -75,6 +78,18 @@ export default function ExecutionListView(props) {
                 },
             ]}
         />
-        {/* Agregar modal */}
+        <Modal
+            open={openModal}
+            handleClose={() => setOpenModal(false)}
+        >
+            <div>
+                <ExecutionLogsView
+                    executeRow={executeRow}
+                    stackEvents={stackEvents}
+                    fetchStackEvents={fetchStackEvents}
+                    logs={logs}
+                />
+            </div>
+        </Modal>
     </div>)
 }

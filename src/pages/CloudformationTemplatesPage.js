@@ -557,7 +557,7 @@ class cloudformationTemplates extends React.Component {
     render() {
         const { state } = this;
         const { openModal, selectedTab } = state;
-        const { currentClient } = this.props;
+        const { currentClient, fetchStackEvents, stackEvents } = this.props;
         return (
             <div className='tabla-material'>
                 <Paper style={{ padding: 8 }}>
@@ -617,7 +617,7 @@ class cloudformationTemplates extends React.Component {
                         onRowDelete: oldData => this.deleteRow(oldData)
                     }}
                 />}
-                {selectedTab === 'executions' && <ExecutionList clickViewRow={this.clickViewRow} currentClient={currentClient} clickExecuteTemplate={this.clickExecuteTemplate} />}
+                {selectedTab === 'executions' && <ExecutionList stackEvents={stackEvents} fetchStackEvents={fetchStackEvents} clickViewRow={this.clickViewRow} currentClient={currentClient} clickExecuteTemplate={this.clickExecuteTemplate} />}
                 <Modal
                     open={openModal}
                     handleClose={this.handleCloseModal}
