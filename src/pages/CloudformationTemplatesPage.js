@@ -33,10 +33,12 @@ class cloudformationTemplates extends React.Component {
             selectedTab: 'templates'
 
         };
+
         this.reset = this.reset.bind(this);
         this.renderNew = this.renderNew.bind(this);
         this.renderView = this.renderView.bind(this);
         this.onChangeTab = this.onChangeTab.bind(this);
+        this.changeState = this.changeState.bind(this);
         this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.clickViewRow = this.clickViewRow.bind(this);
@@ -79,26 +81,32 @@ class cloudformationTemplates extends React.Component {
             let ac = cloudAccounts.find(ca => ca.name === acname)
             return ac ? ac.id : null;
         }).filter(el => !!el)
-        console.log(cloud_accounts);
         const date = (new Date()).getTime();
         axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id })
             .then(response => response.data)
             .then(data => {
                 console.log('data', data);
                 this.props.fetchStackEvents({ stackname, cloud_account_id: cloud_accounts[0], date })
-                    .then(() => this.setState({
-                        logs: {
-                            stackname,
-                            cloud_accounts,
-                            cloud_accounts_responses: data.response,
-                            date
-                        },
-                        state: 'logs',
-                        selectedLogTab: cloud_accounts[0],
-                    }))
-
+                    .then(() => {
+                        this.setState({
+                            selectedTab: 'executions',
+                            openModal: false,
+                            logs: {
+                                stackname,
+                                cloud_accounts,
+                                cloud_accounts_responses: data.response,
+                                date
+                            },
+                            state: 'logs',
+                            selectedLogTab: cloud_accounts[0],
+                        })
+                    })
             })
             .catch(e => { console.log(e) })
+    }
+
+    changeState(state) {
+        this.setState({ state })
     }
 
     fileChangedHandler(e) {
@@ -138,8 +146,6 @@ class cloudformationTemplates extends React.Component {
                 return this.renderNew();
             case 'execute':
                 return this.renderExecute();
-            case 'logs':
-                return this.renderLogs();
             default:
                 return this.renderView();
         }
@@ -228,17 +234,13 @@ class cloudformationTemplates extends React.Component {
         if (templateJSON && templateJSON.Parameters) {
             Object.keys(templateJSON.Parameters).forEach(param => {
                 Parameters[param] = templateJSON.Parameters[param].Default
+                if (rowData.parameters) {
+                    const params = JSON.parse(rowData.parameters);
+                    Parameters[param] = (params[param]) ? params[param] : Parameters[param]
+                }
             })
         }
 
-        if (rowData.parameters) {
-            console.log(rowData.parameters);
-            const params = JSON.parse(rowData.parameters);
-
-            Object.keys(templateJSON.Parameters).forEach(param => {
-                Parameters[param] = (params[param]) ? params[param] : Parameters[param]
-            })
-        }
 
         this.setState({
             modal: 'execute',
@@ -555,11 +557,13 @@ class cloudformationTemplates extends React.Component {
     }
 
     render() {
-        const { state } = this;
-        const { openModal, selectedTab } = state;
+        const { state, onChangeTab } = this;
+        const { openModal, selectedTab, logs, executeRow, selectedLogTab } = state;
+
         const { currentClient, fetchStackEvents, stackEvents } = this.props;
         return (
             <div className='tabla-material'>
+                {/* Breadcrumb */}
                 <Paper style={{ padding: 8 }}>
                     <Breadcrumbs aria-label="Breadcrumb">
                         <Link color="inherit" href="/" onClick={() => { }}>
@@ -575,6 +579,7 @@ class cloudformationTemplates extends React.Component {
                             Breadcrumb</Link> */}
                     </Breadcrumbs>
                 </Paper>
+                {/* Tabs */}
                 <AppBar position="static" color="default">
                     <Tabs
                         value={selectedTab}
@@ -588,7 +593,7 @@ class cloudformationTemplates extends React.Component {
                         <Tab value={"executions"} label={"executions"} />
                     </Tabs>
                 </AppBar>
-
+                {/* Table */}
                 {selectedTab === 'templates' && <MaterialTable
                     title="Templates"
                     columns={state.columns}
@@ -617,7 +622,24 @@ class cloudformationTemplates extends React.Component {
                         onRowDelete: oldData => this.deleteRow(oldData)
                     }}
                 />}
-                {selectedTab === 'executions' && <ExecutionList stackEvents={stackEvents} fetchStackEvents={fetchStackEvents} clickViewRow={this.clickViewRow} currentClient={currentClient} clickExecuteTemplate={this.clickExecuteTemplate} />}
+                {/* Executions */}
+                {selectedTab === 'executions' &&
+                    <ExecutionList
+                        stackEvents={stackEvents}
+                        fetchStackEvents={fetchStackEvents}
+                        clickViewRow={this.clickViewRow}
+                        currentClient={currentClient}
+                        clickExecuteTemplate={this.clickExecuteTemplate}
+                        state={this.state.state}
+                        changeState={this.changeState}
+                        fromTemplates={{
+                            logs,
+                            executeRow,
+                            selectedLogTab,
+                            onChangeTab
+                        }}
+                    />}
+                {/* Modal */}
                 <Modal
                     open={openModal}
                     handleClose={this.handleCloseModal}

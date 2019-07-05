@@ -16,7 +16,9 @@ const useStyles = makeStyles({
 export default function CenteredTabs(props) {
     const classes = useStyles();
     const { logs, selectedLogTab, executeRow, stackEvents, onChangeTab, fetchStackEvents } = props;
+    console.log(logs, selectedLogTab, executeRow, stackEvents, onChangeTab, fetchStackEvents)
     const indexSelectedLogTab = selectedLogTab ? logs.cloud_accounts.indexOf(selectedLogTab) : null;
+    console.log(selectedLogTab, indexSelectedLogTab)
     const errorIntro = "There was an error running the stack > "
 
     const updateLogs = (cloud_account_id) => {
@@ -27,7 +29,7 @@ export default function CenteredTabs(props) {
     }
 
     return (<div>
-        {indexSelectedLogTab && <AppBar position="static" color="default">
+        {indexSelectedLogTab !==null && <AppBar position="static" color="default">
             <Tabs
                 value={selectedLogTab}
                 onChange={onChangeTab}
@@ -39,8 +41,8 @@ export default function CenteredTabs(props) {
                 {logs.cloud_accounts.map((ca_id) => <Tab value={ca_id} label={executeRow.cloudAccounts.find(ca => (ca.id == ca_id)).name} />)}
             </Tabs>
         </AppBar>}
-        {indexSelectedLogTab && logs.cloud_accounts_responses[indexSelectedLogTab].error && <Typography>{errorIntro + logs.cloud_accounts_responses[indexSelectedLogTab].error.message}</Typography>}
-        {(!indexSelectedLogTab || !logs.cloud_accounts_responses[indexSelectedLogTab].error) && !logs.loading && <MaterialTable
+        {indexSelectedLogTab !==null  && logs.cloud_accounts_responses[indexSelectedLogTab].error && <Typography>{errorIntro + logs.cloud_accounts_responses[indexSelectedLogTab].error.message}</Typography>}
+        {(indexSelectedLogTab === null || !logs.cloud_accounts_responses[indexSelectedLogTab].error) && !logs.loading && <MaterialTable
             title={`Execution logs from ${logs.stackname}`}
             columns={['ResourceStatus', 'LogicalResourceId', 'PhysicalResourceId', 'ResourceType', 'ResourceProperties', 'ResourceStatusReason', 'Timestamp'].map(a => ({ field: a, title: a }))}
             data={stackEvents}

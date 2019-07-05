@@ -30,7 +30,7 @@ export default function ExecutionListView(props) {
     const [executeRow, setRow] = React.useState({})
     const [logs, setLogs] = React.useState({})
 
-    const { clickExecuteTemplate, currentClient, clickViewRow, fetchStackEvents, stackEvents } = props;
+    const { clickExecuteTemplate, currentClient, clickViewRow, fetchStackEvents, stackEvents, fromTemplates, state, changeState } = props;
 
     const fetchExecutions = async () => {
         let ex = await axiosCloudformation.post('/getExecutions', { customer_id: currentClient.id }).then(response => response.data)
@@ -51,7 +51,7 @@ export default function ExecutionListView(props) {
 
     React.useEffect(() => {
         fetchExecutions();
-    }, [])
+    }, [state])
 
     return (<div>
         <MaterialTable
@@ -79,15 +79,18 @@ export default function ExecutionListView(props) {
             ]}
         />
         <Modal
-            open={openModal}
-            handleClose={() => setOpenModal(false)}
+            open={state === 'logs' || openModal}
+            handleClose={() => { changeState('asd'); setOpenModal(false) }}
         >
             <div>
                 <ExecutionLogsView
-                    executeRow={executeRow}
+                    executeRow={state === 'logs' ? fromTemplates.executeRow : executeRow}
                     stackEvents={stackEvents}
                     fetchStackEvents={fetchStackEvents}
-                    logs={logs}
+                    logs={state === 'logs' ? fromTemplates.logs : logs}
+
+                    selectedLogTab={state === 'logs' ? fromTemplates.selectedLogTab : null}
+                    onChangeTab={fromTemplates.onChangeTab}
                 />
             </div>
         </Modal>
