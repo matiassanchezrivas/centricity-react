@@ -222,7 +222,7 @@ class cloudformationTemplates extends React.Component {
     async clickExecuteTemplate(event, rowData) {
         //Get cloudaccounts
         const { currentClient } = this.props;
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id }) //TODO replace customer_id
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id })
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
