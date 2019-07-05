@@ -2,21 +2,20 @@ import React from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
-import { Tab, Tabs, AppBar, Paper, Breadcrumbs, Link, FormControl, InputLabel, Select, MenuItem, Container, TextField, Button, Typography, Grid, FormControlLabel, Switch, Input } from '@material-ui/core';
+import { Tab, Tabs, AppBar, Paper, Breadcrumbs, Link } from '@material-ui/core';
 import Modal from '../components/Modal'
 import { axiosCloudformation } from '../config/axios'
-import JSONInput from 'react-json-editor-ajrm';
-import locale from 'react-json-editor-ajrm/locale/en';
 import ExecutionLogsView from '../components/cloudformation/ExecutionLogsView'
 import ExecutionList from '../components/cloudformation/ExecutionListView'
-import CheckList from '../components/CheckList'
+import RenderExecute from '../components/cloudformation/RenderExecute'
+import RenderView from '../components/cloudformation/RenderView'
+import RenderNew from '../components/cloudformation/RenderNew'
 
 class cloudformationTemplates extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             state: "list",
-            newRow: {},
             viewRow: {},
             executeRow: {
                 selectedAccounts: []
@@ -34,21 +33,15 @@ class cloudformationTemplates extends React.Component {
 
         };
 
-        this.reset = this.reset.bind(this);
-        this.renderNew = this.renderNew.bind(this);
-        this.renderView = this.renderView.bind(this);
         this.onChangeTab = this.onChangeTab.bind(this);
         this.changeState = this.changeState.bind(this);
         this.saveTemplate = this.saveTemplate.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.clickViewRow = this.clickViewRow.bind(this);
-        this.renderExecute = this.renderExecute.bind(this);
         this.disableSaveBtn = this.disableSaveBtn.bind(this);
         this.executeTemplate = this.executeTemplate.bind(this);
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
-        this.fileChangedHandler = this.fileChangedHandler.bind(this);
-        this.renderParamSelector = this.renderParamSelector.bind(this);
         this.handleChangeChecked = this.handleChangeChecked.bind(this);
         this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
     }
@@ -82,7 +75,7 @@ class cloudformationTemplates extends React.Component {
             return ac ? ac.id : null;
         }).filter(el => !!el)
         const date = (new Date()).getTime();
-        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id })
+        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: 19 }) //HARCODED
             .then(response => response.data)
             .then(data => {
                 console.log('data', data);
@@ -109,43 +102,32 @@ class cloudformationTemplates extends React.Component {
         this.setState({ state })
     }
 
-    fileChangedHandler(e) {
-        e.preventDefault();
-        console.log(e.target.files)
-        if (e.target.files.length) {
-            this.setState({
-                loadImage: true
-            })
-            const file = e.target.files[0];
-            if (file.type !== 'application/json') {
-                e.target.value = null;
-                return alert('File should be type application/json')
-            }
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                this.setState({
-                    newRow: {
-                        ...this.state.newRow,
-                        json: JSON.parse(event.target.result),
-                        jsonFormatter: {
-                            jsObject: JSON.parse(event.target.result)
-                        }
-                    }
-                })
-                console.log(event.target.result)
-            };
-            reader.readAsText(file);
-        }
-    }
-
     modalSwitch() {
+        const { executeRow, templateJSON, viewRow } = this.state;
         switch (this.state.modal) {
             case 'view':
-                return this.renderView();
+                return <RenderView
+                    viewRow={viewRow}
+                    templateJSON={templateJSON}
+                    handleChange={this.handleChange}
+                    handleCloseModal={this.handleCloseModal}
+                    deleteRow={this.deleteRow}
+                    disableSaveBtn={this.disableSaveBtn}
+                />
             case 'new':
-                return this.renderNew();
+                return <RenderNew
+                    handleCloseModal={this.handleCloseModal}
+                    fetchTemplates={this.props.fetchTemplates}
+                />
             case 'execute':
-                return this.renderExecute();
+                return <RenderExecute
+                    executeRow={executeRow}
+                    templateJSON={templateJSON}
+                    handleChange={this.handleChange}
+                    handleChangeChecked={this.handleChangeChecked}
+                    handleCloseModal={this.handleCloseModal}
+                    saveTemplate={this.saveTemplate}
+                />
             default:
                 return this.renderView();
         }
@@ -161,25 +143,6 @@ class cloudformationTemplates extends React.Component {
                 executeRow: { ...this.state.executeRow, Parameters: { ...this.state.executeRow.Parameters, [field]: e.target.value } }
             })
         }
-    }
-
-    reset() {
-        console.log('vaule', this.inputFile.value)
-        this.inputFile.value = ''
-        this.setState({
-            modal: 'new',
-            newRow: {
-                name: '',
-                description: '',
-                fileName: '',
-                json: {},
-                approved: true,
-                jsonFormatter: {
-                    notChanged: true,
-                }
-            },
-            openModal: true,
-        })
     }
 
     async clickViewRow(event, rowData) {
@@ -222,7 +185,7 @@ class cloudformationTemplates extends React.Component {
     async clickExecuteTemplate(event, rowData) {
         //Get cloudaccounts
         const { currentClient } = this.props;
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id })
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //HARDCODED
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
@@ -270,38 +233,6 @@ class cloudformationTemplates extends React.Component {
             .catch(e => console.log(e))
     }
 
-    renderParamSelector(key, object) {
-        const { executeRow } = this.state;
-        console.log(key)
-        return (<div>{
-            object.AllowedValues ?
-                <FormControl style={{ width: '100%' }}>
-                    <InputLabel >{key}</InputLabel>
-                    <Select
-                        value={executeRow.Parameters[key]}
-                        onChange={(e) => this.handleChange(key, e, 'Parameters')}
-                    >
-                        {object.AllowedValues.map(option => <MenuItem value={option}>{option}</MenuItem>)}
-                    </Select>
-                </FormControl>
-                :
-                <TextField
-                    id={key}
-                    label={key}
-                    style={{ width: '100%' }}
-                    // className={classes.textField}
-                    value={executeRow.Parameters[key]}
-                    onChange={(e) => this.handleChange(key, e, 'Parameters')}
-                    margin="normal"
-                />}
-            <Typography variant="subtitle1" id="simple-modal-description">
-                Type: {object.Type}
-            </Typography>
-            <Typography variant="subtitle1" id="simple-modal-description">
-                Description: {object.Description}
-            </Typography></div>)
-    }
-
     async onChangeTab(e, selectedLogTab) {
         const { logs } = this.state;
         const indexSelectedLogTab = logs.cloud_accounts.indexOf(selectedLogTab);
@@ -336,80 +267,6 @@ class cloudformationTemplates extends React.Component {
         )
     }
 
-    renderView() {
-        const { viewRow, templateJSON } = this.state;
-        return (
-            <Container>
-                <Typography variant="h6" id="modal-title">
-                    Edit template
-          </Typography>
-                <Typography variant="subtitle1" id="simple-modal-description">
-                    Click save to update the template
-          </Typography>
-                <form noValidate autoComplete="off">
-                    <Grid item xs={12}>
-                        <TextField
-                            id="name"
-                            label="Name"
-                            style={{ width: '100%' }}
-                            // className={classes.textField}
-                            value={viewRow.name}
-                            onChange={(e) => this.handleChange('name', e)}
-                            margin="normal"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            id="description"
-                            label="Description"
-                            style={{ width: '100%' }}
-                            // className={classes.textField}
-                            value={viewRow.description}
-                            multiline
-                            rowsMax="4"
-                            onChange={(e) => this.handleChange('description', e)}
-                            margin="normal"
-                        />
-                    </Grid>
-
-                    <FormControlLabel
-                        control={
-                            <Switch checked={this.state.viewRow.checked} onChange={(e) => this.handleChange('approved', e)} value="Approved" />
-                        }
-                        label="Approved"
-                    />
-                    <JSONInput
-                        id='a_unique_id'
-                        placeholder={templateJSON}
-                        // colors={'darktheme'}
-                        locale={locale}
-                        height='250px'
-                        onChange={(e) => this.handleChange('jsonFormatter', e)}
-
-                    />
-                    <Grid item xs={12}>
-                        <Button onClick={(e) => this.deleteRow(viewRow)}>
-                            Delete
-                    </Button>
-                        <Button
-                            onClick={this.saveTemplate}
-                            color="primary"
-                            disabled={this.disableSaveBtn('view')}
-                        >
-                            Save
-                        </Button>
-
-
-
-                        <Button onClick={this.handleCloseModal}>
-                            Cancel
-                    </Button>
-                    </Grid>
-                </form>
-            </Container>
-        )
-    }
-
     handleChangeChecked(value) {
         const { selectedAccounts } = this.state.executeRow;
 
@@ -425,57 +282,7 @@ class cloudformationTemplates extends React.Component {
         this.setState({ executeRow: { ...this.state.executeRow, selectedAccounts: newSelectedAccounts } })
     }
 
-    renderExecute() {
-        const { executeRow, templateJSON } = this.state;
-        return (
-            <Container>
-                <Typography variant="h6" id="modal-title">
-                    Execute template
-          </Typography>
-                <Typography variant="subtitle1" id="simple-modal-description">
-                    Click execute to confirm execution with the provided params
-          </Typography>
-                <Typography variant="h6" id="modal-title">
-                    Settings
-          </Typography>
-                <form noValidate autoComplete="off">
-                    <Grid item xs={12}>
-                        <TextField
-                            id="stackname"
-                            label="Stackname"
-                            style={{ width: '100%' }}
-                            // className={classes.textField}
-                            value={executeRow.stackname}
-                            onChange={(e) => this.handleChange('stackname', e)}
-                            margin="normal"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <CheckList items={executeRow.cloudAccounts.map(ca => ca.name)} handleToggle={this.handleChangeChecked} checked={executeRow.selectedAccounts} />
-                    </Grid>
 
-
-                    {templateJSON && templateJSON.Parameters && <Typography variant="h6" id="modal-title">
-                        Parameters
-                    </Typography>}
-                    {templateJSON && templateJSON.Parameters && Object.keys(templateJSON.Parameters)
-                        .map((key) => this.renderParamSelector(key, templateJSON.Parameters[key]))}
-
-                    <Grid item xs={12}>
-                        <Button
-                            onClick={this.executeTemplate}
-                            color="primary"
-                        >
-                            Execute
-                        </Button>
-                        <Button onClick={this.handleCloseModal}>
-                            Cancel
-                    </Button>
-                    </Grid>
-                </form>
-            </Container>
-        )
-    }
 
     disableSaveBtn(modal) {
         const { name, jsonFormatter, description } = this.state[modal + 'Row'];
@@ -483,78 +290,7 @@ class cloudformationTemplates extends React.Component {
             !name || name === '' || !description || description === '';
     }
 
-    renderNew() {
-        const { newRow } = this.state;
-        return (
-            <Container>
-                <Typography variant="h6" id="modal-title">
-                    New template
-          </Typography>
-                <Typography variant="subtitle1" id="simple-modal-description">
-                    Click save to send template
-          </Typography>
-                <form noValidate autoComplete="off">
-                    <Grid item xs={12}>
-                        <TextField
-                            id="name"
-                            label="Name"
-                            style={{ width: '100%' }}
-                            // className={classes.textField}
-                            value={newRow.name}
-                            onChange={(e) => this.handleChange('name', e)}
-                            margin="normal"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            id="description"
-                            label="Description"
-                            style={{ width: '100%' }}
-                            // className={classes.textField}
-                            multiline
-                            rowsMax="4"
-                            value={newRow.description}
-                            onChange={(e) => this.handleChange('description', e)}
-                            margin="normal"
-                        />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Input label="jasd" type="file"
-                            style={{ width: '100%' }}
-                            onClick={e => console.log(e)}
-                            accept="application/json"
-                            onChange={this.fileChangedHandler}
-                            inputRef={ref => this.inputFile = ref}
-                        />
-                    </Grid>
-                    <FormControlLabel
-                        control={
-                            <Switch checked={this.state.newRow.approved} onChange={(e) => this.handleChange('approved', e)} value="Approved" />
-                        }
-                        label="Approved"
-                    />
-                    <JSONInput
-                        id='a_unique_id'
-                        placeholder={newRow.json}
-                        // colors={'darktheme'}
-                        locale={locale}
-                        height='250px'
-                        onChange={(e) => this.handleChange('jsonFormatter', e)}
-                    />
-                    <Grid item xs={12}>
-                        <Button onClick={this.reset}>
-                            Reset
-                    </Button>
-                        <Button onClick={this.saveTemplate}>
-                            Save
-                    </Button>
-                        <Button onClick={this.handleCloseModal}>
-                            Cancel
-                    </Button>
-                    </Grid>
-                </form>
-            </Container>)
-    }
+
 
     render() {
         const { state, onChangeTab } = this;
