@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux';
 import MaterialTable from 'material-table';
 import { fetchTemplates, fetchStackEvents } from '../actions-creator/templates'
-import { Tab, Tabs, AppBar, Paper, Breadcrumbs, Link } from '@material-ui/core';
+import { Tab, Tabs, AppBar } from '@material-ui/core';
 import Modal from '../components/Modal'
 import { axiosCloudformation } from '../config/axios'
 import ExecutionLogsView from '../components/cloudformation/ExecutionLogsView'
@@ -134,6 +134,7 @@ class cloudformationTemplates extends React.Component {
     }
 
     handleChange(field, e, param) {
+        console.log(field, e.target, e.value, param)
         if (!param) {
             this.setState({
                 [this.state.modal + 'Row']: { ...this.state[this.state.modal + 'Row'], [field]: e.target ? e.target.value : e }
@@ -150,7 +151,6 @@ class cloudformationTemplates extends React.Component {
         const templateJSON = await axiosCloudformation.post('/getTemplateFromS3', { id: rowData.id || rowData.template_id })
             .then(response => response.data)
             .catch(e => { })
-        console.log(templateJSON)
         this.setState({
             modal: 'view',
             templateJSON: templateJSON,
@@ -299,22 +299,6 @@ class cloudformationTemplates extends React.Component {
         const { currentClient, fetchStackEvents, stackEvents } = this.props;
         return (
             <div className='tabla-material'>
-                {/* Breadcrumb */}
-                <Paper style={{ padding: 8 }}>
-                    <Breadcrumbs aria-label="Breadcrumb">
-                        <Link color="inherit" href="/" onClick={() => { }}>
-                            Template </Link>
-                        <Link color="inherit" href="/getting-started/installation/" onClick={() => { }}>
-                            List </Link>
-                        {/* <Link
-                            color="textPrimary"
-                            href="/components/breadcrumbs/"
-                            onClick={() => { }}
-                            aria-current="page"
-                        >
-                            Breadcrumb</Link> */}
-                    </Breadcrumbs>
-                </Paper>
                 {/* Tabs */}
                 <AppBar position="static" color="default">
                     <Tabs

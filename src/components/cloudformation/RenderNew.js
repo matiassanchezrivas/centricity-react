@@ -2,60 +2,39 @@ import React, { useRef } from 'react';
 import { Input, Grid, TextField, Button, Container, Typography, FormControlLabel, Switch } from '@material-ui/core';
 import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
-import {axiosCloudformation} from '../../config/axios'
+import { axiosCloudformation } from '../../config/axios'
 
 export default function RenderNew(props) {
     const inputFile = useRef(null);
     const { handleCloseModal, fetchTemplates } = props;
 
-    const [newRow, setRow] = React.useState({});
+    const [newRow, setRow] = React.useState({ approved: true });
 
     const handleChange = (field, e) => setRow({ ...newRow, [field]: e.target ? e.target.value : e })
 
+    const handleChangeSwitch = e => setRow({ ...newRow, approved: e.target.checked })
+
     const fileChangedHandler = (e) => {
         e.preventDefault();
-        console.log(e.target.files)
         if (e.target.files.length) {
             const file = e.target.files[0];
-            if (file.type !== 'application/json') {
-                e.target.value = null;
-                return alert('File should be type application/json')
-            }
+            if (file.type !== 'application/json') { e.target.value = null; return alert('File should be type application/json') }
             const reader = new FileReader();
-            reader.onload = (event) => {
-                setRow({ ...newRow, json: JSON.parse(event.target.result), jsonFormatter: { jsObject: JSON.parse(event.target.result) } });
-                console.log(event.target.result)
-            };
+            reader.onload = (event) => setRow({ ...newRow, json: JSON.parse(event.target.result), jsonFormatter: { jsObject: JSON.parse(event.target.result) } });
             reader.readAsText(file);
         }
     }
 
     const reset = () => {
-        setRow({
-            name: '',
-            description: '',
-            fileName: '',
-            json: {},
-            approved: true,
-            jsonFormatter: {
-                notChanged: true,
-            }
-        })
+        setRow({ name: '', description: '', fileName: '', json: {}, approved: true, jsonFormatter: { notChanged: true } })
         inputFile.current.value = null
     }
 
     const saveTemplate = () => {
-
-        const { name, description, jsonFormatter, id } = newRow;
-        const approved = true;
+        const { name, description, jsonFormatter, id, approved } = newRow;
         let cf = jsonFormatter.jsObject;
-
-        axiosCloudformation.post('/saveTemplate', {
-            name, cf, description, approved, id
-        }).then(data =>
-            fetchTemplates()
-                .then(data => handleCloseModal())
-        )
+        axiosCloudformation.post('/saveTemplate', { name, cf, description, approved, id })
+            .then(data => fetchTemplates().then(data => handleCloseModal()))
             .catch(e => console.log(e))
     }
 
@@ -103,7 +82,7 @@ export default function RenderNew(props) {
                 </Grid>
                 <FormControlLabel
                     control={
-                        <Switch checked={newRow.approved} onChange={(e) => handleChange('approved', e)} value="Approved" />
+                        <Switch checked={newRow.approved} onChange={handleChangeSwitch} value="Approved" />
                     }
                     label="Approved"
                 />
