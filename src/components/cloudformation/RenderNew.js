@@ -6,14 +6,12 @@ import { axiosCloudformation } from '../../config/axios'
 
 export default function RenderNew(props) {
     const inputFile = useRef(null);
-    const { handleCloseModal, fetchTemplates } = props;
+    const { handleCloseModal, fetchTemplates, allowed } = props;
 
-    const [newRow, setRow] = React.useState({ approved: true });
+    const [newRow, setRow] = React.useState({ approved: allowed });
 
     const handleChange = (field, e) => setRow({ ...newRow, [field]: e.target ? e.target.value : e })
-
-    const handleChangeSwitch = e => setRow({ ...newRow, approved: e.target.checked })
-
+    const handleChangeSwitch = e => setRow({ ...newRow, approved: allowed ? allowed : false })
     const fileChangedHandler = (e) => {
         e.preventDefault();
         if (e.target.files.length) {
@@ -26,14 +24,14 @@ export default function RenderNew(props) {
     }
 
     const reset = () => {
-        setRow({ name: '', description: '', fileName: '', json: {}, approved: true, jsonFormatter: { notChanged: true } })
+        setRow({ name: '', description: '', fileName: '', json: {}, approved: allowed, jsonFormatter: { notChanged: true } })
         inputFile.current.value = null
     }
 
     const saveTemplate = () => {
         const { name, description, jsonFormatter, id, approved } = newRow;
         let cf = jsonFormatter.jsObject;
-        axiosCloudformation.post('/saveTemplate', { name, cf, description, approved, id })
+        axiosCloudformation.post('/saveTemplate', { name, cf, description, approved: allowed ? approved : false, id })
             .then(data => fetchTemplates().then(data => handleCloseModal()))
             .catch(e => console.log(e))
     }

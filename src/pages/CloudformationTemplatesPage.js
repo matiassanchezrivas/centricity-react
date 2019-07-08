@@ -102,7 +102,7 @@ class cloudformationTemplates extends React.Component {
         this.setState({ state })
     }
 
-    modalSwitch() {
+    modalSwitch(allowed) {
         const { executeRow, templateJSON, viewRow } = this.state;
         switch (this.state.modal) {
             case 'view':
@@ -113,11 +113,13 @@ class cloudformationTemplates extends React.Component {
                     handleCloseModal={this.handleCloseModal}
                     deleteRow={this.deleteRow}
                     disableSaveBtn={this.disableSaveBtn}
+                    allowed={allowed}
                 />
             case 'new':
                 return <RenderNew
                     handleCloseModal={this.handleCloseModal}
                     fetchTemplates={this.props.fetchTemplates}
+                    allowed={allowed}
                 />
             case 'execute':
                 return <RenderExecute
@@ -127,6 +129,7 @@ class cloudformationTemplates extends React.Component {
                     handleChangeChecked={this.handleChangeChecked}
                     handleCloseModal={this.handleCloseModal}
                     saveTemplate={this.saveTemplate}
+                    allowed={allowed}
                 />
             default:
                 return this.renderView();
@@ -296,7 +299,9 @@ class cloudformationTemplates extends React.Component {
         const { state, onChangeTab } = this;
         const { openModal, selectedTab, logs, executeRow, selectedLogTab } = state;
 
-        const { currentClient, fetchStackEvents, stackEvents } = this.props;
+        const { currentClient, fetchStackEvents, stackEvents, currentUser } = this.props;
+
+        const allowed = currentUser ? currentUser.roles.indexOf('ROLE_CH_SYSTEM_ADMIN') !== -1 : false;
         return (
             <div className='tabla-material'>
                 {/* Tabs */}
@@ -339,7 +344,7 @@ class cloudformationTemplates extends React.Component {
                         },
                     ]}
                     editable={{
-                        onRowDelete: oldData => this.deleteRow(oldData)
+                        onRowDelete: allowed ? oldData => this.deleteRow(oldData) : null
                     }}
                 />}
                 {/* Executions */}
@@ -365,7 +370,7 @@ class cloudformationTemplates extends React.Component {
                     handleClose={this.handleCloseModal}
                 >
                     <div>
-                        {this.modalSwitch()}
+                        {this.modalSwitch(allowed)}
                     </div>
                 </Modal>
             </div>
@@ -388,6 +393,7 @@ const mapStateToProps = function (state) {
         templates: state.templates.templates,
         stackEvents: state.templates.stackEvents,
         currentClient: state.clients.currentClient,
+        currentUser: state.users.currentUser,
     };
 }
 
