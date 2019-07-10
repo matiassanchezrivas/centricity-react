@@ -75,7 +75,7 @@ class cloudformationTemplates extends React.Component {
             return ac ? ac.id : null;
         }).filter(el => !!el)
         const date = (new Date()).getTime();
-        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: 19 }) //HARCODED
+        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id }) 
             .then(response => response.data)
             .then(data => {
                 console.log('data', data);
@@ -130,6 +130,7 @@ class cloudformationTemplates extends React.Component {
                     handleCloseModal={this.handleCloseModal}
                     saveTemplate={this.saveTemplate}
                     allowed={allowed}
+                    executeTemplate={this.executeTemplate}
                 />
             default:
                 return this.renderView();
@@ -188,7 +189,7 @@ class cloudformationTemplates extends React.Component {
     async clickExecuteTemplate(event, rowData) {
         //Get cloudaccounts
         const { currentClient } = this.props;
-        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: 19 }) //HARDCODED
+        const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id })
             .then(response => response.data)
             .catch(e => { })
         //Get template from s3
