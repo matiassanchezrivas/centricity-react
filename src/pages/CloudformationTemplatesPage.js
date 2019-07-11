@@ -77,7 +77,6 @@ class cloudformationTemplates extends React.Component {
         axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id })
             .then(response => response.data)
             .then(data => {
-                console.log('data', data);
                 this.props.fetchStackEvents({ stackname, cloud_account_id: cloud_accounts[0], date })
                     .then(() => {
                         this.setState({
@@ -113,6 +112,7 @@ class cloudformationTemplates extends React.Component {
                     deleteRow={this.deleteRow}
                     disableSaveBtn={this.disableSaveBtn}
                     allowed={allowed}
+                    saveTemplate={this.saveTemplate}
                 />
             case 'new':
                 return <RenderNew

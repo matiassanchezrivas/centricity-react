@@ -4,7 +4,9 @@ import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 
 export default function RenderExecute(props) {
-    const { viewRow, templateJSON, handleChange, saveTemplate, handleCloseModal, deleteRow, disableSaveBtn, allowed } = props;
+    const { viewRow, templateJSON, handleChange, saveTemplate, handleCloseModal, deleteRow, allowed } = props;
+    const disableSaveBtn = !viewRow.name || viewRow.name === '' || !viewRow.description || viewRow.description === '' || !viewRow.jsonFormatter || viewRow.jsonFormatter.error
+
     return (
         <Container>
             <Typography variant="h6" id="modal-title">
@@ -64,7 +66,7 @@ export default function RenderExecute(props) {
                     {allowed && <Button
                         onClick={saveTemplate}
                         color="primary"
-                        disabled={disableSaveBtn('view')}
+                        disabled={disableSaveBtn}
                     >
                         Save
                     </Button>}
