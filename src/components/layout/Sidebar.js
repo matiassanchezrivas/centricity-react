@@ -89,7 +89,7 @@ class Sidebar extends Component {
                 {
                   item.submenu ?
                     <a onClick={() => onClickSubmenu(item.name)} href={null} ui-sref-active="active" data-icon-after='&#xe5cd;' className="ch-menu__link">{I18n.get(item.name)}</a> :
-                    item.name === 'MENU_BACK' ? <a onClick={() => onClickMenuBack(menu.name)} class="ch-back" href="#" data-icon-before="&#xe5cc;">{I18n.get(item.name)}</a> : <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/#' + config_menu[item.ref].url} ui-sref-active="active" className="ch-menu__link">{I18n.get(item.name)}</a>
+                    item.name === 'MENU_BACK' ? <a onClick={() => onClickMenuBack(menu.name)} class="ch-back" href="#" data-icon-before="&#xe5cc;">{I18n.get(item.name)}</a> : <a onClick={item.onClick ? () => this.onClickReact(item.onClick, toggleOptionsBar) : null} href={item.onClick ? null : '/v1/index.html#' + config_menu[item.ref].url} ui-sref-active="active" className="ch-menu__link">{I18n.get(item.name)}</a>
                 }
               </li>
               : null

@@ -69,9 +69,9 @@ class Dropdown extends Component {
         const { changeLanguaje } = this.props;
         const { link, languageChange, logout } = option;
 
-        if (link) window.location.replace(link);
+        if (link) window.location.replace('/v1/index.html' + link);
         if (languageChange) { changeLanguaje(languageChange); console.log('changeLanguaje', languageChange) }
-        if (logout) { localStorage.removeItem('cloudpoxee.session'); window.location.replace('/#/login') }
+        if (logout) { localStorage.removeItem('cloudpoxee.session'); window.location.replace('/v1/index.html#/login') }
     }
 
     render() {

@@ -26,7 +26,7 @@ class Sidebar extends Component {
         {menu.map(item => {
           return item.roles.length === 0 || _.intersection(item.roles, roles).length > 0 ?
             <li>
-              <a href={item.ref && config.CENTRICITY_FRONT + '/#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
+              <a href={item.ref && config.CENTRICITY_FRONT + '/index.html#' + config_menu[item.ref].url} ui-sref-active="active" data-icon-after={item.submenu && '&#xe5cd;'} class="ch-menu__link">{I18n.get(item.name)}</a>
             </li>
             : null
         }
@@ -52,7 +52,7 @@ class Sidebar extends Component {
     const { filteredClients } = this.state;
     I18n.setLanguage(languaje);
     return (
-      <ClickAwayListener onClickAway={clientsMenuOpen ? toggleClientsBar : ()=>{}}>
+      <ClickAwayListener onClickAway={clientsMenuOpen ? toggleClientsBar : () => { }}>
         <div className="aside" tabindex="-1" role="dialog">
           <div className="aside-dialog">
             <div className="aside-content">
@@ -64,7 +64,7 @@ class Sidebar extends Component {
                 <div className="customer-actions">
                   <input onChange={this.filterClients} className="customer-search" ng-model="search.name" />
                   <div className="customer-search-icon">F</div>
-                  <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace(+'/#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
+                  <button className="customer-manage" ui-sref="app.customers-management" onClick={e => window.location.replace(+'/v1/index.html#/customers-management')}>{I18n.get('CUSTOMERS_MANAGEMENT')}</button>
                 </div>
                 {/* No customers */}
                 {(!filteredClients || !filteredClients.length) && <div className="no-customers">{I18n.get('ADMIN_MENU_NO_CLIENTS')}</div>}

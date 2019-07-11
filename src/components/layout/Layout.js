@@ -44,7 +44,7 @@ class Layout extends Component {
             await this.props.fetchUser(parsedSession.sessionId)
                 .then(e => this.setState({ loading: false }))
                 .catch(e => {
-                    window.location.replace('/#/login')
+                    window.location.replace('/v1/index.html#/login')
                 })
         }
     }

@@ -32,8 +32,8 @@ class Header extends Component {
           <span className="lines"></span>
         </button>
         {/* Logo */}
-        <img className="logo" src={logoHeader} onClick={() => window.location.replace('/#/dashboard')} />
-        <img className="logo-small" src={logoHeaderSmall} onClick={() => window.location.replace('/#/dashboard')} />
+        <img className="logo" src={logoHeader} onClick={() => window.location.replace('/v1/index.html#/dashboard')} />
+        <img className="logo-small" src={logoHeaderSmall} onClick={() => window.location.replace('/v1/index.html#/dashboard')} />
         {/* Loading */}
         {loading && !loadingBlock && <div className='active animated fadeIn'></div>}
         {/* User bar */}
