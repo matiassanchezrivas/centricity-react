@@ -41,6 +41,7 @@ class cloudformationTemplates extends React.Component {
         this.executeTemplate = this.executeTemplate.bind(this);
         this.clickAddTemplate = this.clickAddTemplate.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.handleChangeSwitch = this.handleChangeSwitch.bind(this);
         this.handleChangeChecked = this.handleChangeChecked.bind(this);
         this.clickExecuteTemplate = this.clickExecuteTemplate.bind(this);
     }
@@ -113,6 +114,7 @@ class cloudformationTemplates extends React.Component {
                     disableSaveBtn={this.disableSaveBtn}
                     allowed={allowed}
                     saveTemplate={this.saveTemplate}
+                    handleChangeSwitch={this.handleChangeSwitch}
                 />
             case 'new':
                 return <RenderNew
@@ -148,6 +150,10 @@ class cloudformationTemplates extends React.Component {
             })
         }
     }
+    handleChangeSwitch(allowed) {
+        const { viewRow } = this.state;
+        this.setState({ viewRow: { ...viewRow, approved: allowed ? !viewRow.approved : false } })
+    }
 
     async clickViewRow(event, rowData) {
         console.log(rowData)
@@ -162,7 +168,8 @@ class cloudformationTemplates extends React.Component {
                     notChanged: true,
                     jsObject: templateJSON,
                 },
-                ...rowData
+                ...rowData,
+                approved: rowData.approved_by ? true : false
             },
             openModal: true,
         })
@@ -315,7 +322,7 @@ class cloudformationTemplates extends React.Component {
                         scrollButtons="auto"
                     >
                         <Tab value={"templates"} label={"templates"} />
-                        <Tab value={"executions"} label={"executions"} />
+                        <Tab disabled={!currentClient} value={"executions"} label={"executions"} />
                     </Tabs>
                 </AppBar>
                 {/* Table */}

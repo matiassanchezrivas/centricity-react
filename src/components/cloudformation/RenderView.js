@@ -4,7 +4,7 @@ import JSONInput from 'react-json-editor-ajrm';
 import locale from 'react-json-editor-ajrm/locale/en';
 
 export default function RenderExecute(props) {
-    const { viewRow, templateJSON, handleChange, saveTemplate, handleCloseModal, deleteRow, allowed } = props;
+    const { viewRow, templateJSON, handleChange, saveTemplate, handleCloseModal, handleChangeSwitch, deleteRow, allowed } = props;
     const disableSaveBtn = !viewRow.name || viewRow.name === '' || !viewRow.description || viewRow.description === '' || !viewRow.jsonFormatter || viewRow.jsonFormatter.error
 
     return (
@@ -45,7 +45,7 @@ export default function RenderExecute(props) {
 
                 {allowed && <FormControlLabel
                     control={
-                        <Switch checked={viewRow.checked} onChange={(e) => handleChange('approved', e)} value="Approved" />
+                        <Switch checked={viewRow.approved} onChange={(e) => handleChangeSwitch(allowed)} value="Approved" />
                     }
                     label="Approved"
                 />}
