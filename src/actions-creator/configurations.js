@@ -18,9 +18,11 @@ const receiveItems = (items, selectedTable) => ({
 })
 
 export const fetchTables = (customer_id, cloud_account_id) => dispatch => {
+    dispatch(receiveTable([]));
     return axiosConfigurations.post(`/listTables`, { customer_id, cloud_account_id })
         .then(res => res.data)
         .then(tables => dispatch(receiveTable(tables)))
+        .catch(e => dispatch(receiveTable([])))
 }
 
 export const fetchPersistedTables = (customer_id, cloud_account_id) => dispatch => {

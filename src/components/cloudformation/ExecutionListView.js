@@ -51,7 +51,7 @@ export default function ExecutionListView(props) {
 
     React.useEffect(() => {
         fetchExecutions();
-    }, [state])
+    }, [state, currentClient])
 
     return (<div>
         <MaterialTable

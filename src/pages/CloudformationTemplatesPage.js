@@ -30,7 +30,6 @@ class cloudformationTemplates extends React.Component {
                 { title: 'Description', field: 'description' },
             ],
             selectedTab: 'templates'
-
         };
 
         this.onChangeTab = this.onChangeTab.bind(this);
@@ -75,7 +74,7 @@ class cloudformationTemplates extends React.Component {
             return ac ? ac.id : null;
         }).filter(el => !!el)
         const date = (new Date()).getTime();
-        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id }) 
+        axiosCloudformation.post('/executeTemplate', { template_id: id || template_id, cloud_accounts, Parameters, stackname, customer_id: currentClient.id })
             .then(response => response.data)
             .then(data => {
                 console.log('data', data);

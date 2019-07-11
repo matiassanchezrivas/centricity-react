@@ -7,20 +7,23 @@ import CreateTable from '../components/configurations/CreateTable'
 import ViewItems from '../components/configurations/ViewItems'
 import SelectTables from '../components/configurations/SelectTables'
 
+const initialState = {
+    tab: 'select',
+    newTable: {
+        keys: [{ name: 'id', type: 'Number', primaryKey: true }]
+    },
+    openModal: false,
+    links: [],
+    loading: true,
+    cloudAccounts: [],
+    keys: [],
+    selectedAccount: null,
+}
+
 class ConfigurationsPage extends Component {
     constructor(props) {
         super(props)
-        this.state = {
-            tab: 'select',
-            newTable: {
-                keys: [{ name: 'id', type: 'Number', primaryKey: true }]
-            },
-            openModal: false,
-            links: [],
-            loading: true,
-            cloudAccounts: [],
-            keys: []
-        }
+        this.state = initialState;
         this.addKey = this.addKey.bind(this);
         this.deleteKey = this.deleteKey.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -30,6 +33,19 @@ class ConfigurationsPage extends Component {
         this.confirmCreateTable = this.confirmCreateTable.bind(this);
         this.handleChangeInside = this.handleChangeInside.bind(this);
         this.updateDynamoTableKeys = this.updateDynamoTableKeys.bind(this);
+    }
+
+    async componentDidUpdate(prevProps, prevState) {
+        if (prevProps.currentClient !== this.props.currentClient) {
+            this.setState(initialState);
+            const { currentClient } = this.props;
+            const ca = await axiosCloudformation.post('/getCloudAccounts', { customer_id: currentClient.id })
+                .then(response => response.data)
+                .catch(e => [])
+            this.setState({
+                cloudAccounts: ca,
+            })
+        }
     }
 
     async handleChange(e) {
