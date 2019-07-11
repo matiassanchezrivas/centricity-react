@@ -11,7 +11,7 @@ export default function RenderNew(props) {
     const [newRow, setRow] = React.useState({ approved: allowed });
 
     const handleChange = (field, e) => setRow({ ...newRow, [field]: e.target ? e.target.value : e })
-    const handleChangeSwitch = e => setRow({ ...newRow, approved: allowed ? allowed : false })
+    const handleChangeSwitch = e => setRow({ ...newRow, approved: allowed ? !newRow.approved : false })
     const fileChangedHandler = (e) => {
         e.preventDefault();
         if (e.target.files.length) {
@@ -36,6 +36,7 @@ export default function RenderNew(props) {
             .catch(e => console.log(e))
     }
 
+    const disableSaveBtn = !newRow.name || newRow.name === '' || !newRow.description || newRow.description === '' || !newRow.jsonFormatter || newRow.jsonFormatter.error
     return (
         <Container>
             <Typography variant="h6" id="modal-title">
@@ -96,7 +97,7 @@ export default function RenderNew(props) {
                     <Button onClick={() => reset()}>
                         Reset
                 </Button>
-                    <Button onClick={saveTemplate}>
+                    <Button disabled={disableSaveBtn} onClick={saveTemplate}>
                         Save
                 </Button>
                     <Button onClick={handleCloseModal}>
