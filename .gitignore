@@ -64,3 +64,7 @@ yarn\.lock
 
 build/
 src/styles\.zip
+
+build\.zip
+
+\.DS_Store
