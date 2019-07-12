@@ -228,8 +228,7 @@ class cloudformationTemplates extends React.Component {
 
     saveTemplate() {
         const { modal } = this.state;
-        const { name, description, jsonFormatter, id } = this.state[modal + 'Row']
-        const approved = true;
+        const { name, description, jsonFormatter, id, approved } = this.state[modal + 'Row']
         let cf = jsonFormatter.jsObject;
         if (modal === 'view' && jsonFormatter.notChanged) {
             cf = { notChanged: true }
