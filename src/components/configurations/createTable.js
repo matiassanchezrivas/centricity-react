@@ -13,10 +13,14 @@ const styles = theme => ({
     }
 });
 
-function CenteredTabs(props) {
+function CreateTable(props) {
     // const classes = useStyles();
     // const [value, setValue] = React.useState(0);
     const { newTable, addKey, deleteKey, handleChangeInside, confirmCreateTable, classes, edition } = props;
+
+    let disableBtn = false;
+    if (!newTable.keys || !newTable.keys.length || !newTable.name || newTable.name === '') disableBtn = true;
+    if (!disableBtn) newTable.keys.forEach(key => { if (key.name == '' || !(key.type === "String" || key.type === "Number" || key.type === "Binary")) disableBtn = true })
 
     return (<div className={classes.root} >
         <Typography variant="h6">
@@ -84,6 +88,7 @@ function CenteredTabs(props) {
             variant="contained"
         >addKey</Button>
         <Button
+            disabled={disableBtn}
             className={classes.margin}
             variant="contained" color="primary"
             onClick={confirmCreateTable}
@@ -94,4 +99,4 @@ function CenteredTabs(props) {
 
 }
 
-export default withStyles(styles)(CenteredTabs);
+export default withStyles(styles)(CreateTable);
