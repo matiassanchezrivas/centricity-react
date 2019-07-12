@@ -34,7 +34,7 @@ export default function RenderExecute(props) {
                         margin="normal"
                     />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid item xs={12} style={{ maxHeight: 300, overflow: 'scroll' }}>
                     <CheckList items={executeRow.cloudAccounts.map(ca => ca.name)} handleToggle={handleChangeChecked} checked={executeRow.selectedAccounts} />
                 </Grid>
 
