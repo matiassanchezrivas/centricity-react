@@ -26,16 +26,16 @@ const columns = [
 export default function ExecutionListView(props) {
     const [executions, setExecutions] = React.useState([])
     const [openModal, setOpenModal] = React.useState(false)
+    const [page, setPage] = React.useState(0)
+    const [limit, setLimit] = React.useState(5)
     const [loadingLogs, setLoadingLogs] = React.useState(true)
     const [executeRow, setRow] = React.useState({})
     const [logs, setLogs] = React.useState({})
 
     const { clickExecuteTemplate, currentClient, clickViewRow, fetchStackEvents, stackEvents, fromTemplates, state, changeState } = props;
 
-    const fetchExecutions = async () => {
-        let ex = await axiosCloudformation.post('/getExecutions', { customer_id: currentClient.id }).then(response => response.data)
-        ex = ex.map(execution => { execution.originalDate = execution.date; execution.date = (new Date(execution.date)).toLocaleString(); return execution })
-        setExecutions(ex);
+    const fetchExecutions = async (limit, page) => {
+        return await axiosCloudformation.post('/getExecutions', { customer_id: currentClient.id, limit, page }).then(response => response.data)
     }
 
     const loadLogs = async (e, row) => {
@@ -49,8 +49,19 @@ export default function ExecutionListView(props) {
             .catch(() => setLoadingLogs(false)) //setearError
     }
 
+    const fetchData = query =>
+        new Promise(async (resolve, reject) => {
+            const fetch = await fetchExecutions(query.pageSize, query.page)
+                .catch(e => ({}))
+            resolve({
+                data: fetch.executions ? fetch.executions.map(execution => { execution.originalDate = execution.date; execution.date = (new Date(execution.date)).toLocaleString(); return execution }) : [],
+                page: query.page,
+                totalCount: fetch.total || 0
+            });
+        })
+
     React.useEffect(() => {
-        fetchExecutions();
+        fetchExecutions(5, 0);
     }, [state, currentClient])
 
     return (<div>
@@ -58,7 +69,8 @@ export default function ExecutionListView(props) {
             title={`Execution logs registered on Customer: ${currentClient.name}`}
             columns={columns}
             data={executions}
-            options={{ paginationType: "stepped" }}
+            options={{ search: false }}
+            data={fetchData}
             actions={[
                 // ROW ACTIONS
                 {
