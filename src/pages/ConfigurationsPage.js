@@ -64,10 +64,14 @@ class ConfigurationsPage extends Component {
     async updateDynamoTableKeys(tableName) {
         const { currentClient } = this.props;
         const { selectedAccount } = this.state;
+        // Reset items
+        this.props.fetchItems()
+        // Get keys
         const tableConfig = await axiosConfigurations.post('/getDynamoTableKeys', { customer_id: currentClient.id, cloud_account_id: selectedAccount, tableName })
             .then(response => response.data)
             .catch(e => { })
         let keys = tableConfig ? JSON.parse(tableConfig.keys) : []
+        // Fetch items
         if (keys) this.props.fetchItems(currentClient ? currentClient.id : null, selectedAccount, tableName, keys.map(k => k.name));
         this.setState({ keys })
     }
